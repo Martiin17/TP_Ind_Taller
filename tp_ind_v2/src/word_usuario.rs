@@ -1,12 +1,12 @@
 use crate::token_parseo::TokenParseo;
 
 #[derive(Debug)]
-pub struct WordUsuario {
+pub struct WordUsuario<'a> {
     nombre: String,
-    body: Vec<TokenParseo>,
+    body: Vec<&'a TokenParseo>,
 }
 
-impl WordUsuario {
+impl <'a> WordUsuario<'a>{
     pub fn new(nombre: String) -> Self {
         Self {
             nombre,
@@ -22,11 +22,11 @@ impl WordUsuario {
         self.nombre = nuevo_nombre;
     }
 
-    pub fn agregar_elemento(&mut self, elem: TokenParseo) {
+    pub fn agregar_elemento(&mut self, elem: &'a TokenParseo) {
         self.body.push(elem)
     }
 
-    pub fn get_body(&self) -> &Vec<TokenParseo> {
-        &self.body
+    pub fn get_body(&mut self) -> &mut Vec<&'a TokenParseo> {
+        &mut self.body
     }
 }

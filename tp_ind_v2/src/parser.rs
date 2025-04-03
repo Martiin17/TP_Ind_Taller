@@ -4,12 +4,10 @@ use std::path::Path;
 
 use crate::devolucion::Devolucion;
 use crate::token_parseo::TokenParseo;
-use crate::token_usuario::TokenUsuario;
 
 #[derive(Debug)]
 pub struct Parser {
-    pub tokens: Vec<TokenUsuario>,
-    //pub words_usuario: Vec<WordUsuario>
+    pub tokens: Vec<TokenParseo>,
 }
 
 impl Parser {
@@ -27,64 +25,36 @@ impl Parser {
         for linea in reader.lines() {
             let linea = linea?;
             for word in linea.split_whitespace() {
-                let word_formateada = word.to_uppercase();
-                resultado.push(word_formateada);
+                //let word_formateada = word.to_uppercase();
+                resultado.push(word.to_string());
             }
         }
         Ok(resultado)
     }
 
     pub fn parseo(&mut self, leido: Vec<String>) -> Result<Devolucion, String> {
-        let mut siguiente_word_name = false;
-        let mut termino_word = true;
-        let mut en_texto = false;
+        let mut proximo_word_name = false;
+        let mut es_texto = false;
         for elem in leido {
-            if siguiente_word_name {
-                //let resultado_parseo = self.matchear_string(elem, &mut siguiente_word_name, &mut termino_word, &mut en_texto);
-                self.tokens
-                    .push(TokenUsuario::WordName(TokenParseo::WordName(elem)));
-                siguiente_word_name = false;
-                termino_word = false;
-            } else if en_texto {
-                if elem.contains("\"") {
+            if proximo_word_name {
+                self.tokens.push(TokenParseo::WordName(elem));
+                proximo_word_name = false;
+            }else if let Ok(nro) = elem.parse::<i16>(){
+                self.tokens.push(TokenParseo::Numero(nro));
+            }else if es_texto{
+                if elem.contains("\""){
                     let elem_sin_comillas = elem.replace("\"", "");
-                    if !termino_word {
-                        self.tokens.push(TokenUsuario::WordBody(TokenParseo::Texto(
-                            elem_sin_comillas,
-                        )));
-                    } else {
-                        self.tokens
-                            .push(TokenUsuario::Ninguno(TokenParseo::Texto(elem_sin_comillas)));
-                    }
-                    en_texto = false;
-                } else {
-                    if !termino_word {
-                        self.tokens
-                            .push(TokenUsuario::WordBody(TokenParseo::Texto(elem)));
-                    } else {
-                        self.tokens
-                            .push(TokenUsuario::Ninguno(TokenParseo::Texto(elem)));
-                    }
+                    self.tokens.push(TokenParseo::Texto(elem_sin_comillas));
+                    es_texto = false;
+                }else{
+                    self.tokens.push(TokenParseo::Texto(elem));
                 }
-            } else if !termino_word {
-                let resultado_parseo = self.matchear_string(
-                    elem,
-                    &mut siguiente_word_name,
-                    &mut termino_word,
-                    &mut en_texto,
-                );
-                self.tokens.push(TokenUsuario::WordBody(resultado_parseo));
-            } else if let Ok(nro) = elem.parse::<i16>() {
-                self.tokens
-                    .push(TokenUsuario::Ninguno(TokenParseo::Numero(nro)));
-            } else {
-                let resultado_parseo = self.matchear_string(
-                    elem,
-                    &mut siguiente_word_name,
-                    &mut termino_word,
-                    &mut en_texto,
-                );
-                self.tokens.push(TokenUsuario::Ninguno(resultado_parseo));
+            }else{
+                let resultado_parseo = self.matchear_string(elem.to_uppercase(), 
+                &mut proximo_word_name,
+                &mut es_texto,
+            );
+                self.tokens.push(resultado_parseo);
             }
         }
         Ok(Devolucion::Vacio)
@@ -93,9 +63,8 @@ impl Parser {
     fn matchear_string(
         &self,
         elem: String,
-        siguiente_word_name: &mut bool,
-        termino_word: &mut bool,
-        en_texto: &mut bool,
+        proximo_word_name: &mut bool,
+        es_texto: &mut bool
     ) -> TokenParseo {
         match elem.as_str() {
             "+" => TokenParseo::Ejecutable(elem),
@@ -119,17 +88,14 @@ impl Parser {
             "THEN" => TokenParseo::Ejecutable(elem),
             "ELSE" => TokenParseo::Ejecutable(elem),
             ":" => {
-                *siguiente_word_name = true;
-                TokenParseo::Simbolo(elem)
-            }
-            ";" => {
-                *termino_word = true;
-                TokenParseo::Simbolo(elem)
-            }
+                *proximo_word_name = true;
+                TokenParseo::SimboloInicioWord(elem)
+            },
+            ";" => TokenParseo::SimboloFinWord(elem),
             ".\"" => {
-                *en_texto = true;
+                *es_texto = true;
                 TokenParseo::Simbolo(elem)
-            }
+            },
             _ => TokenParseo::Ejecutable(elem),
         }
     }
