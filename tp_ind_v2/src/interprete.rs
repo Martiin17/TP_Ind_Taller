@@ -59,7 +59,7 @@ pub fn armar_words_usuario<'a>(forth: &mut Forth<'a>, tokens: &'a Vec<TokenParse
                     forth.words_usuarios.push(WordUsuario::new(nombre.to_string()));
                     en_armado_word = true;
                 }
-                TokenParseo::SimboloInicioWord(_) => {},
+                TokenParseo::SimboloInicioWord(_) => {}
                 TokenParseo::SimboloFinWord(_) => return Err(String::from("parser error (simbolo fin)")),
                 TokenParseo::Simbolo(_) => {},
                 _ => forth.restante.push(token),
@@ -110,6 +110,64 @@ pub fn comprobar_no_transitive<'a>(forth: &mut Forth<'a>, words_usuario: &mut Ve
 }
 
 fn chequeo_word_ya_creada<'a>(forth: &mut Forth<'a>, word_actual: &mut WordUsuario<'a>) -> Result<Devolucion, String>{
+    let mut contenido = word_actual.get_body();
+    for i in 0..contenido.len(){
+        if let TokenParseo::Ejecutable(nombre) = contenido[i]{
+            let word_encontrada = forth.get_word_usuario_mut(nombre);
+            match word_encontrada{
+                Ok(word) => {
+                    contenido.remove(i);
+                    let mut aux:usize = i;
+                    for elem in word.get_body(){
+                        contenido.insert(aux, elem);
+                        aux += 1;
+                    }
+                },
+                Err(_) => {},
+            }
+        }
+    }
+    Ok(Devolucion::Vacio)
+} */
+
+
+/* fn chequeo_word_ya_creada<'a>(forth: &mut Forth<'a>) -> Result<Vec<(usize, &'a mut  Vec<&'a TokenParseo>, String)>, String>{
+    let mut resultado: Vec<(usize, &mut Vec<&TokenParseo>, String)> = Vec::new();
+    for word_actual in &forth.words_usuarios{
+        let contenido = word_actual.get_body_not_mut();
+        for i in 0..contenido.len(){
+            if let TokenParseo::Ejecutable(nombre) = contenido[i]{
+                let word_encontrada = forth.get_word_usuario(&nombre);
+                match word_encontrada{
+                    Ok(word) => {
+                        resultado.push((i, word.get_body(), nombre.to_string()));
+                    },
+                    Err(_) => {},
+                }
+            }
+        }
+    }
+    Ok(resultado)
+}  */
+
+//en el main for word__actual in &mut forth.words_usuarios
+/* pub fn chequeo_word_ya_creada<'a>(forth: &'a mut Forth<'a>) -> Result<Vec<(usize, &'a Vec<&'a TokenParseo>, String)>, String>{
+    //(i, lo que tengo que poner, en que palabra modificar)
+    let mut resultado: Vec<(usize, &Vec<&TokenParseo>, String)> = vec![];
+    for word_actual in &mut forth.words_usuarios{
+        let contenido = word_actual.get_body_not_mut();
+        for i in 0..contenido.len(){
+            if let TokenParseo::WordName(nombre) = contenido[i]{
+                resultado.push((i, contenido, nombre.to_string()));
+                forth.quitar_elemento(i);
+            }
+        }
+    }
+    Ok(resultado)
+}  */
+
+
+/* fn chequeo_word_ya_creada<'a>(word_actual: &mut WordUsuario<'a>) -> Result<Devolucion, String>{
     let mut contenido = word_actual.get_body();
     for i in 0..contenido.len(){
         if let TokenParseo::Ejecutable(nombre) = contenido[i]{

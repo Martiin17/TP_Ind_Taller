@@ -3,7 +3,10 @@ use std::io::{self, BufRead};
 use std::path::Path;
 
 use crate::devolucion::Devolucion;
+use crate::forth::Forth;
+use crate::token::Token;
 use crate::token_parseo::TokenParseo;
+use crate::word_usuario::WordUsuario;
 
 #[derive(Debug)]
 pub struct Parser {
@@ -35,9 +38,10 @@ impl Parser {
     pub fn parseo(&mut self, leido: Vec<String>) -> Result<Devolucion, String> {
         let mut proximo_word_name = false;
         let mut es_texto = false;
+        let mut dentro_de_word = false;
         for elem in leido {
             if proximo_word_name {
-                self.tokens.push(TokenParseo::WordName(elem));
+                self.tokens.push(TokenParseo::WordName(elem.to_uppercase()));
                 proximo_word_name = false;
             }else if let Ok(nro) = elem.parse::<i16>(){
                 self.tokens.push(TokenParseo::Numero(nro));
@@ -53,6 +57,7 @@ impl Parser {
                 let resultado_parseo = self.matchear_string(elem.to_uppercase(), 
                 &mut proximo_word_name,
                 &mut es_texto,
+                &mut dentro_de_word,
             );
                 self.tokens.push(resultado_parseo);
             }
@@ -64,7 +69,8 @@ impl Parser {
         &self,
         elem: String,
         proximo_word_name: &mut bool,
-        es_texto: &mut bool
+        es_texto: &mut bool,
+        dentro_de_word: &mut bool
     ) -> TokenParseo {
         match elem.as_str() {
             "+" => TokenParseo::Ejecutable(elem),
@@ -89,49 +95,24 @@ impl Parser {
             "ELSE" => TokenParseo::Ejecutable(elem),
             ":" => {
                 *proximo_word_name = true;
+                *dentro_de_word = true;
                 TokenParseo::SimboloInicioWord(elem)
             },
-            ";" => TokenParseo::SimboloFinWord(elem),
+            ";" => {
+                *dentro_de_word = false;
+                TokenParseo::SimboloFinWord(elem)
+            },
             ".\"" => {
                 *es_texto = true;
                 TokenParseo::Simbolo(elem)
             },
-            _ => TokenParseo::Ejecutable(elem),
+            _ => {
+                if *dentro_de_word{
+                    TokenParseo::WordName(elem)
+                }else{
+                    TokenParseo::Ejecutable(elem)
+                }
+            },
         }
     }
-
-    //lo de arriba parser y lo de abajo interprete?
-    /* pub fn ejecutar(tokens: Vec<TokenParseo>) -> Result<Devolucion, String> {
-           let mut word_aux = WordUsuario::new(String::from("-1"));
-           let mut en_word_body = false;
-           for token in tokens{
-               if en_word_body == true{
-                   if let TokenParseo::Simbolo(_) = TokenParseo::Simbolo(String::from(";")){
-                       en_word_body = false;
-                   }else{
-                       word_aux.agregar_elemento(token);
-                   }
-               }else{
-                   match token {
-                       TokenParseo::Numero(_) => todo!(),
-                       TokenParseo::Texto(_) => todo!(),
-                       TokenParseo::WordName(nombre) => {
-                           word_aux = WordUsuario::new(nombre);
-                       },
-                       TokenParseo::WordBody(_) => {
-                           //if esta en el de usuarios otra vez esta fun, si no:
-                           word_aux.agregar_elemento(token);
-                       },
-                       TokenParseo::Simbolo(string) => {
-                           if string == String::from(";"){
-                               en_word_body = true;
-                           }
-                       },
-                       TokenParseo::Ejecutable(_) => todo!(),
-                   }
-               }
-           }
-           Ok(Devolucion::Vacio)
-       }
-    */
 }

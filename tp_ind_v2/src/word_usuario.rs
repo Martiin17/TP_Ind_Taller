@@ -18,15 +18,15 @@ impl <'a> WordUsuario<'a>{
         &self.nombre
     }
 
-    pub fn set_nombre(&mut self, nuevo_nombre: String) {
-        self.nombre = nuevo_nombre;
-    }
-
     pub fn agregar_elemento(&mut self, elem: &'a TokenParseo) {
         self.body.push(elem)
     }
 
     pub fn get_body(&mut self) -> &mut Vec<&'a TokenParseo> {
         &mut self.body
+    }
+
+    pub fn get_body_not_mut(&self) -> &Vec<&'a TokenParseo> {
+        &self.body
     }
 }

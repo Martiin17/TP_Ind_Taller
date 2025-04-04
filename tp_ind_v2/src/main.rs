@@ -15,6 +15,7 @@ mod token_parseo;
 mod utils;
 mod word_primitiva;
 mod word_usuario;
+mod token;
 
 fn main() {
     let mut stack_test = Stack::new(20);
@@ -24,25 +25,34 @@ fn main() {
 
     if let Ok(vector_string) = parser_test.leer_archivo("probando.fth") {
         match parser_test.parseo(vector_string) {
-            //Ok(_) => println!("{:?}", parser_test.tokens),
-            Ok(_) => println!("Todo ok. no muestro todos los tokens"),
+            Ok(_) => println!("{:?}", parser_test.tokens),
+            //Ok(_) => println!("Todo ok. no muestro todos los tokens"),
             Err(e) => println!("{}", e),
         }
         
         match armar_words_usuario(&mut forth_test, &parser_test.tokens) {
             Ok(_) => {
                 println!("Todo ok");
-                println!("forth usuario: {:?}", forth_test.words_usuarios);
-                println!("forth restantes: {:?}", forth_test.restante);
+                //println!("forth usuario: {:?}", forth_test.words_usuarios);
+                //println!("forth restantes: {:?}", forth_test.restante);
             }
             Err(e) => println!("{}", e),
         }
-        
-        //comprobar_no_transitive(&mut forth_test, &mut aux);
 
-        /* match obtener_word(parser_test.tokens){
-            Ok(_) => println!("llegue"),
-            Err(e) => println!("{}", e),
-        } */
+        match forth_test.verificar_no_transitive(){
+            Ok(_) => {
+                println!("Todo ok no transitive");
+                println!("forth usuario: {:?}", forth_test.words_usuarios);
+                println!("forth restantes: {:?}", forth_test.restante);
+            },
+            Err(e) => println!("{:?}", e),
+        }
+        
+        for token in &forth_test.restante{
+            match forth_test.ejecutar(token, &mut stack_test){
+                Ok(_) => println!("{:?}", stack_test),
+                Err(e) => println!("{}",e),
+            }
+        }
     }
 }
