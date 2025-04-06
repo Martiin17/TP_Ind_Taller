@@ -34,3 +34,24 @@ fn ejecutar_condicion(stack: &mut Stack, texto: &String, interprete: &Interprete
     }
     Ok(Devolucion::Vacio)
 } */
+
+/* use crate::{devolucion::Devolucion, stack::Stack, token_parseo::TokenParseo};
+
+use super::matchear_devolucion_numero;
+
+pub fn ejecutar_if(&self, stack: &mut Stack, v1_if: Vec<TokenParseo>, v2_if: Vec<TokenParseo>) -> Result<Devolucion, String>{
+    let valor_bool = stack.pop()?;
+    let valor_bool = matchear_devolucion_numero(valor_bool).ok_or(String::from("No se pudo extraer el numero del stack"))?;
+    if valor_bool == -1{
+        for elem in v1{
+            self.ejecutar(&elem, stack);
+        }
+    }else{
+        if v2_if.len() > 0{
+            for elem in v2{
+                self.ejecutar(&elem, stack);
+            }
+        }
+    }
+    Ok(Devolucion::Vacio)
+} */

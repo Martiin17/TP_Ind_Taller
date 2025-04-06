@@ -7,4 +7,6 @@ pub enum TokenParseo {
     SimboloFinWord(String),
     Simbolo(String),
     Ejecutable(String),
+    DentroIF(Vec<TokenParseo>),
+    DentroELSE(Vec<TokenParseo>),
 }

@@ -16,7 +16,8 @@ mod utils;
 mod word_primitiva;
 mod word_usuario;
 mod token;
-
+mod estructura_if;
+mod parametro_if;
 fn main() {
     let mut stack_test = Stack::new(20);
     let mut parser_test = Parser::new();
@@ -24,8 +25,17 @@ fn main() {
     let mut aux: &Vec<WordUsuario<'_>> = &vec![];
 
     if let Ok(vector_string) = parser_test.leer_archivo("probando.fth") {
-        match parser_test.parseo(vector_string) {
+        /* match parser_test.parseo(vector_string) {
             Ok(_) => println!("{:?}", parser_test.tokens),
+            //Ok(_) => println!("Todo ok. no muestro todos los tokens"),
+            Err(e) => println!("{}", e),
+        } */
+
+        match parser_test.parseo(&vector_string) {
+            Ok(rta) => {
+                parser_test.tokens = rta;
+                //println!("{:?}", rta);
+            },
             //Ok(_) => println!("Todo ok. no muestro todos los tokens"),
             Err(e) => println!("{}", e),
         }
@@ -33,8 +43,8 @@ fn main() {
         match armar_words_usuario(&mut forth_test, &parser_test.tokens) {
             Ok(_) => {
                 println!("Todo ok");
-                //println!("forth usuario: {:?}", forth_test.words_usuarios);
-                //println!("forth restantes: {:?}", forth_test.restante);
+                println!("forth usuario: {:?}", forth_test.words_usuarios);
+                println!("forth restantes: {:?}", forth_test.restante);
             }
             Err(e) => println!("{}", e),
         }
@@ -47,12 +57,9 @@ fn main() {
             },
             Err(e) => println!("{:?}", e),
         }
-        
-        for token in &forth_test.restante{
-            match forth_test.ejecutar(token, &mut stack_test){
-                Ok(_) => println!("{:?}", stack_test),
-                Err(e) => println!("{}",e),
-            }
-        }
+        /* match forth_test.ejecutar_tokens(&forth_test.restante, &mut stack_test) {
+            Ok(_) => println!("{:?}", stack_test),
+            Err(e) => println!("Error: {}", e),
+        } */
     }
 }

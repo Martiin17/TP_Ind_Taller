@@ -1,2 +1,3 @@
-: MAX 1 DUP ." probando texto" ;
+: THEN 15 2 2 ;
+: MAX -1 IF 12 THEN ;
 MAX
