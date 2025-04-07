@@ -1,8 +1,7 @@
 use forth::Forth;
-use interprete::{armar_words_usuario};
+use interprete::armar_words_usuario;
 use parser::Parser;
 use stack::Stack;
-use token_parseo::TokenParseo;
 use word_usuario::WordUsuario;
 
 mod devolucion;
@@ -15,9 +14,6 @@ mod token_parseo;
 mod utils;
 mod word_primitiva;
 mod word_usuario;
-mod token;
-mod estructura_if;
-mod parametro_if;
 fn main() {
     let mut stack_test = Stack::new(20);
     let mut parser_test = Parser::new();

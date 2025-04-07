@@ -4,10 +4,8 @@ use std::path::Path;
 use std::vec;
 
 use crate::devolucion::Devolucion;
-use crate::estructura_if::{self, EstructuraIf};
 use crate::forth::Forth;
 use crate::stack::Stack;
-use crate::token::Token;
 use crate::token_parseo::TokenParseo;
 use crate::word_usuario::WordUsuario;
 
@@ -249,73 +247,4 @@ impl Parser {
             },
         }
     }
-
-    /* pub fn parseo_2(
-        &self,
-        elem: String,
-        proximo_word_name: &mut bool,
-        es_texto: &mut bool,
-        dentro_de_word: &mut bool,
-        mut niveles_if: &mut i16,
-
-    ) -> Result<TokenParseo, String> {
-        if *proximo_word_name {
-            *proximo_word_name = false;
-            return Ok(TokenParseo::WordName(elem.to_uppercase()));
-        }else if let Ok(nro) = elem.parse::<i16>(){
-            return Ok(TokenParseo::Numero(nro));
-        }else if *es_texto{
-            if elem.contains(".\""){
-                *es_texto = false;
-            }
-            return Ok(TokenParseo::Texto(elem));
-        }else if elem.to_uppercase() == "IF"{
-            *niveles_if += 1;
-            let token = self.hacer_if_dft(&elem, &mut niveles_if)?;
-            return Ok(token);
-        }
-        else{
-            let resultado_parseo = self.matchear_string(elem.to_uppercase(), 
-            proximo_word_name,
-            es_texto,
-            dentro_de_word,
-        );
-            return Ok(resultado_parseo);
-        }
-    }
-
-    fn hacer_if_dft(&self, elem: &String, niveles_if: &mut i16) -> Result<TokenParseo, String>{
-        let mut contador_local: usize = 0;
-        let mut contador_if: usize = 0;
-        let mut hubo_else = false;
-        for i in *contador+1..leido.len(){
-            let elem = &leido[i];
-            if elem.to_uppercase() == "THEN"{
-                *niveles_if -= 1;
-                if *niveles_if == 0 && !hubo_else{
-                    let vector = self.parseo(&leido[*contador+1..i])?;
-                    *contador += contador_local;
-                    return Ok(TokenParseo::DentroIF(vector));
-                }
-                if *niveles_if == 0 && hubo_else{
-                    let mut vector_if = self.parseo(&leido[*contador+1..contador_if])?;
-                    let vector_else = self.parseo(&leido[contador_if+1..i])?;
-                    let token_else = TokenParseo::DentroELSE(vector_else);
-                    vector_if.push(token_else);
-                    *contador += contador_local;
-                    return Ok(TokenParseo::DentroIF(vector_if));
-                }
-            }
-            if elem.to_uppercase() == "IF"{
-                *niveles_if += 1;
-            }
-            if elem.to_uppercase() == "ELSE"{
-                contador_if = i;
-                hubo_else = true;
-            }
-            contador_local += 1;
-        }
-        Err("No se encontro THEN".to_string())
-    } */
-
 }
