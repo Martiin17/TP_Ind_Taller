@@ -33,6 +33,7 @@ fn main() {
 
         match parser_test.parseo(&vector_string) {
             Ok(rta) => {
+                println!("vector: {:?}", &rta);
                 parser_test.tokens = rta;
                 //println!("{:?}", rta);
             },
@@ -57,9 +58,23 @@ fn main() {
             },
             Err(e) => println!("{:?}", e),
         }
-        /* match forth_test.ejecutar_tokens(&forth_test.restante, &mut stack_test) {
+
+        /* let prueba = forth_test.words_usuarios.get(0);
+        match prueba{
+            Some(valor) => {
+                match forth_test.encontrar_cierre_if(valor.get_body_not_mut()){
+                    Ok(rta) => {
+                        println!("{:?}", rta);
+                    },
+                    Err(e) => println!("{:?}", e),
+                }
+            },
+            None => println!("NONE"),
+        } */
+
+        match forth_test.ejecutar_tokens(&mut stack_test) {
             Ok(_) => println!("{:?}", stack_test),
             Err(e) => println!("Error: {}", e),
-        } */
+        }
     }
 }

@@ -1,3 +1,2 @@
-: THEN 15 2 2 ;
-: MAX -1 IF 12 THEN ;
-MAX
+: Mayor -1 IF 100 ELSE 200 THEN 8 ;
+Mayor

@@ -9,4 +9,7 @@ pub enum TokenParseo {
     Ejecutable(String),
     DentroIF(Vec<TokenParseo>),
     DentroELSE(Vec<TokenParseo>),
+    IF,
+    ELSE,
+    THEN,
 }

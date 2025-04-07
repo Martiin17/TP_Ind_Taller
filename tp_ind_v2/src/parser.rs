@@ -122,89 +122,7 @@ impl Parser {
         }
     }
  */
-    /* pub fn parseo(&mut self, leido: &Vec<String>) -> Result<Vec<TokenParseo>, String> {
-        let mut proximo_word_name = false;
-        let mut es_texto = false;
-        let mut dentro_de_word = false;
-        let mut texto_acumulado = String::new();
-        let mut resultado: Vec<TokenParseo> = vec![];
-        for elem in leido {
-            if proximo_word_name {
-                resultado.push(TokenParseo::WordName(elem.to_uppercase()));
-                proximo_word_name = false;
-            }else if let Ok(nro) = elem.parse::<i16>(){
-                resultado.push(TokenParseo::Numero(nro));
-            }else if es_texto{
-                es_texto = self.procesar_texto(&elem, &mut texto_acumulado);
-            }else if elem == ".\""{
-                es_texto = true;
-                texto_acumulado.clear();
-            }else{
-                let resultado_parseo = self.matchear_string(elem.to_uppercase(), 
-                &mut proximo_word_name,
-                &mut es_texto,
-                &mut dentro_de_word,
-            );
-            resultado.push(resultado_parseo);
-            }
-        }
-        Ok(resultado)
-    }
 
-    fn procesar_texto(&mut self, elem: &str, texto_acumulado: &mut String) -> bool {
-        if elem.contains("\"") {
-            let partes: Vec<&str> = elem.split('\"').collect();
-            texto_acumulado.push_str(partes[0]);
-            
-            let texto_final = std::mem::take(texto_acumulado);
-            self.tokens.push(TokenParseo::Texto(texto_final));
-            
-            return false;
-        } else {
-            texto_acumulado.push_str(elem);
-            texto_acumulado.push_str(" ");
-            
-            return true;
-        }
-    }
-
-    fn matchear_string(
-        &self,
-        elem: String,
-        proximo_word_name: &mut bool,
-        es_texto: &mut bool,
-        dentro_de_word: &mut bool
-    ) -> TokenParseo {
-        match elem.as_str() {
-            "+" | "-" | "/" | "*" | "AND" | "OR" | "<" | ">" |
-            "NOT" | "=" | "." | "CR" | "EMIT" | "DUP" | "DROP" |
-            "SWAP" | "OVER" => TokenParseo::Ejecutable(elem),
-            "IF" => TokenParseo::Ejecutable(elem),
-            "THEN" => TokenParseo::Ejecutable(elem),
-            "ELSE" => TokenParseo::Ejecutable(elem),
-            ":" => {
-                *proximo_word_name = true;
-                *dentro_de_word = true;
-                TokenParseo::SimboloInicioWord(elem)
-            },
-            ";" => {
-                *dentro_de_word = false;
-                TokenParseo::SimboloFinWord(elem)
-            },
-            ".\"" => {
-                *es_texto = true;
-                println!("error ./");
-                TokenParseo::Simbolo(elem)
-            },
-            _ => {
-                if *dentro_de_word{
-                    TokenParseo::WordName(elem)
-                }else{
-                    TokenParseo::Ejecutable(elem)
-                }
-            },
-        }
-    } */
     pub fn parseo(&self, leido: &[String]) -> Result<Vec<TokenParseo>, String> {
         let mut proximo_word_name = false;
         let mut es_texto = false;
@@ -223,11 +141,11 @@ impl Parser {
                 let token = self.encontrar_texto(&leido, &mut i);
                 resultado.push(token);
                 es_texto = false;
-            }else if elem.to_uppercase() == "IF"{
+            }/* else if elem.to_uppercase() == "IF"{
                 niveles_if += 1;
                 let token = self.hacer_if_dft(&leido, &mut i, &mut niveles_if)?;
                 resultado.push(token);
-            }
+            } */
             else{
                 let resultado_parseo = self.matchear_string(elem.to_uppercase(), 
                 &mut proximo_word_name,
@@ -242,26 +160,6 @@ impl Parser {
     }
 
     /* fn hacer_if_dft(&self, leido: &[String], contador: &mut usize, niveles_if: &mut i16) -> Result<TokenParseo, String>{
-        let mut contador_local: usize = 0;
-        for i in *contador+1..leido.len(){
-            let elem = &leido[i];
-            if elem.to_uppercase() == "THEN"{
-                *niveles_if -= 1;
-                if *niveles_if == 0{
-                    let vector = self.parseo(&leido[*contador+1..i])?;
-                    *contador += contador_local;
-                    return Ok(TokenParseo::DentroIF(vector));
-                }
-            }
-            if elem.to_uppercase() == "IF"{
-                *niveles_if += 1;
-            }
-            contador_local += 1;
-        }
-        Err("No se encontro THEN".to_string())
-    } */
-
-    fn hacer_if_dft(&self, leido: &[String], contador: &mut usize, niveles_if: &mut i16) -> Result<TokenParseo, String>{
         let mut contador_local: usize = 0;
         let mut contador_if: usize = 0;
         let mut hubo_else = false;
@@ -293,6 +191,63 @@ impl Parser {
             contador_local += 1;
         }
         Err("No se encontro THEN".to_string())
+    } */
+
+    fn encontrar_texto(&self, leido: &[String], contador: &mut usize) -> TokenParseo {
+        let mut texto_acumulado = String::new();
+        let mut contador_local: usize = 0;
+        for i in *contador..leido.len(){
+            let elem = &leido[i];
+            println!("elem: {}", elem);
+            if elem.contains("\"") {
+                let partes: Vec<&str> = elem.split('\"').collect();
+                texto_acumulado.push_str(partes[0]);
+                break;
+            } else {
+                texto_acumulado.push_str(elem);
+                texto_acumulado.push_str(" ");   
+            }
+            contador_local += 1;
+        }
+        *contador += contador_local;
+        TokenParseo::Texto(texto_acumulado)
+    }
+
+    fn matchear_string(
+        &self,
+        elem: String,
+        proximo_word_name: &mut bool,
+        es_texto: &mut bool,
+        dentro_de_word: &mut bool
+    ) -> TokenParseo {
+        match elem.as_str() {
+            "+" | "-" | "/" | "*" | "AND" | "OR" | "<" | ">" |
+            "NOT" | "=" | "." | "CR" | "EMIT" | "DUP" | "DROP" |
+            "SWAP" | "OVER" => TokenParseo::Ejecutable(elem),
+            "IF" => TokenParseo::IF,
+            "THEN" => TokenParseo::THEN,
+            "ELSE" => TokenParseo::ELSE,
+            ":" => {
+                *proximo_word_name = true;
+                *dentro_de_word = true;
+                TokenParseo::SimboloInicioWord(elem)
+            },
+            ";" => {
+                *dentro_de_word = false;
+                TokenParseo::SimboloFinWord(elem)
+            },
+            ".\"" => {
+                *es_texto = true;
+                TokenParseo::Simbolo(elem)
+            },
+            _ => {
+                if *dentro_de_word{
+                    TokenParseo::WordName(elem)
+                }else{
+                    TokenParseo::Ejecutable(elem)
+                }
+            },
+        }
     }
 
     /* pub fn parseo_2(
@@ -363,107 +318,4 @@ impl Parser {
         Err("No se encontro THEN".to_string())
     } */
 
-    fn encontrar_texto(&self, leido: &[String], contador: &mut usize) -> TokenParseo {
-        let mut texto_acumulado = String::new();
-        let mut contador_local: usize = 0;
-        for i in *contador..leido.len(){
-            let elem = &leido[i];
-            println!("elem: {}", elem);
-            if elem.contains("\"") {
-                let partes: Vec<&str> = elem.split('\"').collect();
-                texto_acumulado.push_str(partes[0]);
-                break;
-            } else {
-                texto_acumulado.push_str(elem);
-                texto_acumulado.push_str(" ");   
-            }
-            contador_local += 1;
-        }
-        *contador += contador_local;
-        TokenParseo::Texto(texto_acumulado)
-    }
-
-    fn matchear_string(
-        &self,
-        elem: String,
-        proximo_word_name: &mut bool,
-        es_texto: &mut bool,
-        dentro_de_word: &mut bool
-    ) -> TokenParseo {
-        match elem.as_str() {
-            "+" | "-" | "/" | "*" | "AND" | "OR" | "<" | ">" |
-            "NOT" | "=" | "." | "CR" | "EMIT" | "DUP" | "DROP" |
-            "SWAP" | "OVER" => TokenParseo::Ejecutable(elem),
-            "IF" => TokenParseo::Ejecutable(elem),
-            "THEN" => TokenParseo::Ejecutable(elem),
-            "ELSE" => TokenParseo::Ejecutable(elem),
-            ":" => {
-                *proximo_word_name = true;
-                *dentro_de_word = true;
-                TokenParseo::SimboloInicioWord(elem)
-            },
-            ";" => {
-                *dentro_de_word = false;
-                TokenParseo::SimboloFinWord(elem)
-            },
-            ".\"" => {
-                *es_texto = true;
-                TokenParseo::Simbolo(elem)
-            },
-            _ => {
-                if *dentro_de_word{
-                    TokenParseo::WordName(elem)
-                }else{
-                    TokenParseo::Ejecutable(elem)
-                }
-            },
-        }
-    }
-
-   /* pub fn procesar_if<'a>(&self, parseado: &'a Vec<TokenParseo>) -> Result<Vec<EstructuraIf<'a>>, String>{
-        let mut ifs: Vec<EstructuraIf> = vec![];
-        let mut dentro_de_if = false;
-        let mut dentro_de_else = false;
-        let mut indice_actual = 0;
-        for elem in parseado{
-            if let TokenParseo::Ejecutable(string) = elem{
-                if string == &mut(String::from("IF")){
-                    ifs.push(EstructuraIf::new());
-                    indice_actual += 1;
-                    //println!("indice en IF: {}", indice_actual);
-                    dentro_de_if = true;
-                }else if string == &mut(String::from("THEN")){
-                    dentro_de_if = false;
-                    dentro_de_else = false;
-                    if indice_actual > 0{
-                        indice_actual -= 1;
-                    }
-                    //println!("indice en THEN: {}", indice_actual);
-                }else if string == &mut(String::from("ELSE")){
-                    dentro_de_else = true;
-                    dentro_de_if = false;
-                }else{
-                    if dentro_de_if{
-                        let actual = &mut ifs[indice_actual-1];
-                        actual.get_v_if().push(elem);
-                    }else if dentro_de_else{
-                        let actual = &mut ifs[indice_actual-1];
-                        actual.get_v_else().push(elem);
-                    }
-                }
-            }else{
-                if dentro_de_if{
-                    let actual = &mut ifs[indice_actual-1];
-                    actual.get_v_if().push(elem);
-                }else if dentro_de_else{
-                    let actual = &mut ifs[indice_actual-1];
-                    actual.get_v_else().push(elem);
-                }
-            }
-        }
-        if indice_actual != 0{
-            return Err("No se cerro el if".to_string());
-        }
-        Ok(ifs)
-    } */
 }
