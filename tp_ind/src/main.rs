@@ -1,6 +1,5 @@
 use forth::Forth;
-use interprete::{armar_words_usuario, escribir_stack, interpretar_parametros};
-use parametro_body::ParametroBody;
+use interprete::{formar_bodys, escribir_stack, interpretar_parametros};
 use parser::Parser;
 use stack::Stack;
 
@@ -34,7 +33,7 @@ fn main() {
             Err(e) => println!("{}", e),
         }
         
-        match armar_words_usuario(&mut forth_test, parser_test.tokens) {
+        match formar_bodys(&mut forth_test, parser_test.tokens) {
             Ok(_) => {
                 println!("Todo ok");
                 println!("forth usuario: {:?}", forth_test.words_usuarios);
@@ -43,15 +42,6 @@ fn main() {
             }
             Err(e) => println!("{}", e),
         }
-
-        /* match forth_test.verificar_no_transitive(){
-            Ok(_) => {
-                println!("Todo ok no transitive");
-                //println!("forth usuario: {:?}", forth_test.words_usuarios);
-                //println!("forth restantes: {:?}", forth_test.restante);
-            },
-            Err(e) => println!("{:?}", e),
-        } */
 
         match forth_test.ejecutar_tokens(&mut stack_test) {
             Ok(_) => println!("{:?}", stack_test),

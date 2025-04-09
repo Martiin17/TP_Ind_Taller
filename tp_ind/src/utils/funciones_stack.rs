@@ -4,8 +4,7 @@ use super::matchear_devolucion_numero;
 
 pub fn ejecutar_dup(stack: &mut Stack) -> Result<Devolucion, String> {
     let a = stack.pop()?;
-    let a = matchear_devolucion_numero(a)
-        .ok_or(String::from("No se pudo extraer el numero del stack"))?;
+    let a = matchear_devolucion_numero(a)?;
     stack.push(a)?;
     stack.push(a)?;
     Ok(Devolucion::Vacio)
@@ -21,10 +20,8 @@ pub fn ejecutar_drop(stack: &mut Stack) -> Result<Devolucion, String> {
 pub fn ejecutar_swap(stack: &mut Stack) -> Result<Devolucion, String> {
     let a = stack.pop()?;
     let b = stack.pop()?;
-    let a = matchear_devolucion_numero(a)
-        .ok_or(String::from("No se pudo extraer el numero del stack"))?;
-    let b = matchear_devolucion_numero(b)
-        .ok_or(String::from("No se pudo extraer el numero del stack"))?;
+    let a = matchear_devolucion_numero(a)?;
+    let b = matchear_devolucion_numero(b)?;
     stack.push(a)?;
     stack.push(b)?;
     Ok(Devolucion::Vacio)
@@ -33,10 +30,8 @@ pub fn ejecutar_swap(stack: &mut Stack) -> Result<Devolucion, String> {
 pub fn ejecutar_over(stack: &mut Stack) -> Result<Devolucion, String> {
     let a = stack.pop()?;
     let b = stack.pop()?;
-    let a = matchear_devolucion_numero(a)
-        .ok_or(String::from("No se pudo extraer el numero del stack"))?;
-    let b = matchear_devolucion_numero(b)
-        .ok_or(String::from("No se pudo extraer el numero del stack"))?;
+    let a = matchear_devolucion_numero(a)?;
+    let b = matchear_devolucion_numero(b)?;
     stack.push(b)?;
     stack.push(a)?;
     stack.push(b)?;
@@ -47,12 +42,9 @@ pub fn ejecutar_rot(stack: &mut Stack) -> Result<Devolucion, String> {
     let a = stack.pop()?;
     let b = stack.pop()?;
     let c = stack.pop()?;
-    let a = matchear_devolucion_numero(a)
-        .ok_or(String::from("No se pudo extraer el numero del stack"))?;
-    let b = matchear_devolucion_numero(b)
-        .ok_or(String::from("No se pudo extraer el numero del stack"))?;
-    let c = matchear_devolucion_numero(c)
-        .ok_or(String::from("No se pudo extraer el numero del stack"))?;
+    let a = matchear_devolucion_numero(a)?;
+    let b = matchear_devolucion_numero(b)?;
+    let c = matchear_devolucion_numero(c)?;
     stack.push(b)?;
     stack.push(a)?;
     stack.push(c)?;

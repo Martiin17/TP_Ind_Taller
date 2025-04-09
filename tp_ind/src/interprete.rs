@@ -1,21 +1,23 @@
 use std::{env, vec};
 
 use crate::parametro_body::ParametroBody;
-use crate::stack::{self, Stack};
+use crate::stack::Stack;
 use crate::{
     devolucion::Devolucion, forth::Forth, token_parseo:: TokenParseo,
     word_usuario::WordUsuario,
 };
 
+use std::fs::File;
+use std::io::{self, Write};
 
-pub fn armar_words_usuario<'a>(forth: &mut Forth<'a>, tokens: Vec<TokenParseo>) -> Result<Devolucion, String>{
+pub fn formar_bodys(forth: &mut Forth, tokens: Vec<TokenParseo>) -> Result<Devolucion, String>{
     let mut en_armado_word = false;
     let mut body_actual: Vec<ParametroBody> = vec![];
     let mut contador_words: usize = 0;
     for token in tokens{
         if en_armado_word {
             match token{
-                TokenParseo::SimboloInicioWord(_) => return Err(String::from("parser error (simbolo inicio)")),
+                TokenParseo::SimboloInicioWord(_) => return Err(String::from("parser-error (simbolo inicio)")),
                 TokenParseo::SimboloFinWord(_) => {
                     en_armado_word = false;
                     forth.bodys.push(body_actual);
@@ -42,7 +44,7 @@ pub fn armar_words_usuario<'a>(forth: &mut Forth<'a>, tokens: Vec<TokenParseo>) 
                     en_armado_word = true;
                 }
                 TokenParseo::SimboloInicioWord(_) => {},
-                TokenParseo::SimboloFinWord(_) => return Err(String::from("parser error (simbolo fin)")),
+                TokenParseo::SimboloFinWord(_) => return Err(String::from("parser-error (simbolo fin)")),
                 TokenParseo::Simbolo(_) => {},
                 _ => forth.restante.push(token),
             }
@@ -110,14 +112,10 @@ pub fn interpretar_parametros() -> (usize, String){
     (capacidad_stack, ruta_fth.to_string())
 }
 
-use std::fs::File;
-use std::io::{self, Write};
-
 
 pub fn escribir_stack(stack: &Stack) -> io::Result<()> {
-    let mut archivo = File::create("stack.fth")?; // crea o sobrescribe el archivo
+    let mut archivo = File::create("stack.fth")?; 
 
-    // Convertimos cada número a string y los separamos con espacios
     let contenido = stack.vector
         .iter()
         .rev()
@@ -125,7 +123,6 @@ pub fn escribir_stack(stack: &Stack) -> io::Result<()> {
         .collect::<Vec<_>>()
         .join(" ");
 
-    // Escribimos al archivo
     writeln!(archivo, "{}", contenido)?;
     Ok(())
 }
