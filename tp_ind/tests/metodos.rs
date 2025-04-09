@@ -36,10 +36,9 @@ fn metodo_creacion_tokens() -> Result<(), String>{
 fn metodo_creacion_word_usuario() -> Result<(), String>{
     let tokens = vec![TokenParseo::SimboloInicioWord(String::from(":")), 
     TokenParseo::WordName(String::from("CINCO")), TokenParseo::Numero(5), TokenParseo::SimboloFinWord(String::from(";"))];
-    let words = crear_word_usuario(&tokens)?;
-    let word_creada = words.get(0).ok_or("No se pudo crear la word para comparar")?;
-    let mut word_correcta = WordUsuario::new(String::from("CINCO"));
-    word_correcta.agregar_elemento(&TokenParseo::Numero(5));
+    let (body, word) = crear_word_usuario(tokens)?;
+    let word_creada = word.get(0).ok_or("No se pudo crear la word para comparar")?;
+    let word_correcta = WordUsuario::new(String::from("CINCO"), 0);
     assert_eq!(*word_creada, word_correcta);
     Ok(())
 }

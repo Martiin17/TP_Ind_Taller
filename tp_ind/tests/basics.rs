@@ -255,7 +255,7 @@ fn basic_shadowing_symbol_1() -> Result<(), String>{
 }
 
 #[test]
-#[ignore = "Not function good "]
+//#[ignore = "Not function good "]
 fn basic_non_transitive() -> Result<(), String>{
     escribir_en_archivo(": foo 5 ; \n : bar foo ; \n : foo 6 ; \n bar foo")?;
     set_up()?;

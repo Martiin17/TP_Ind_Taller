@@ -1,7 +1,7 @@
-use tp_ind::{devolucion::{self, Devolucion}, forth::{self, Forth}, interprete::{armar_words_usuario, escribir_stack}, parser::{self, Parser}, stack::{self, Stack}, token_parseo::TokenParseo, word_usuario::WordUsuario};
+use tp_ind::{forth::Forth, interprete::{escribir_stack, formar_bodys}, parametro_body::ParametroBody, parser::Parser, stack::Stack, token_parseo::TokenParseo, word_usuario::WordUsuario};
 
 use std::fs::File;
-use std::io::{self, Write, Read};
+use std::io::{Write, Read};
 
 const CAPACIDAD_STACK: usize = 65536; //1024 * 128 * 1/2
 const RUTA_ARCHIVO: &str = "probando.fth";
@@ -18,9 +18,7 @@ pub fn set_up() -> Result<(), String>{
     parser_test.tokens = tokens;
 
 
-    let _ = armar_words_usuario(&mut forth_test, &parser_test.tokens)?;
-
-    let _ = forth_test.verificar_no_transitive()?;
+    let _ = formar_bodys(&mut forth_test, parser_test.tokens)?;
 
     let _ = forth_test.ejecutar_tokens(&mut stack_test)?;
 
@@ -43,10 +41,10 @@ pub fn formar_tokens(leido: &Vec<String>) -> Result<Vec<TokenParseo>, String>{
     Ok(tokens)
 }
 
-pub fn crear_word_usuario<'a>(tokens: &'a  Vec<TokenParseo>) -> Result<Vec<WordUsuario>, String> {
+pub fn crear_word_usuario<'a>(tokens: Vec<TokenParseo>) -> Result<(Vec<Vec<ParametroBody>>, Vec<WordUsuario>), String> {
     let mut forth_test = Forth::new();
-    let _ = armar_words_usuario(&mut forth_test, &tokens)?;
-    Ok(forth_test.words_usuarios)
+    let _ = formar_bodys(&mut forth_test, tokens)?;
+    Ok((forth_test.bodys, forth_test.words_usuarios))
 }
 
 fn crear_texto_a_imprimir(texto: &str) -> Vec<String>{
