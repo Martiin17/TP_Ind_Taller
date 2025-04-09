@@ -2,12 +2,7 @@ use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
 use std::vec;
-
-use crate::devolucion::Devolucion;
-use crate::forth::Forth;
-use crate::stack::Stack;
 use crate::token_parseo::TokenParseo;
-use crate::word_usuario::WordUsuario;
 
 #[derive(Debug)]
 pub struct Parser {
@@ -29,97 +24,11 @@ impl Parser {
         for linea in reader.lines() {
             let linea = linea?;
             for word in linea.split_whitespace() {
-                //let word_formateada = word.to_uppercase();
                 resultado.push(word.to_string());
             }
         }
         Ok(resultado)
     }
-
-    //El posta
-    /* pub fn parseo(&mut self, leido: Vec<String>) -> Result<Devolucion, String> {
-        let mut proximo_word_name = false;
-        let mut es_texto = false;
-        let mut dentro_de_word = false;
-        let mut texto_acumulado = String::new();
-        for elem in leido {
-            if proximo_word_name {
-                self.tokens.push(TokenParseo::WordName(elem.to_uppercase()));
-                proximo_word_name = false;
-            }else if let Ok(nro) = elem.parse::<i16>(){
-                self.tokens.push(TokenParseo::Numero(nro));
-            }else if es_texto{
-                es_texto = self.procesar_texto(&elem, &mut texto_acumulado);
-            }else if elem == ".\""{
-                es_texto = true;
-                texto_acumulado.clear();
-            }else{
-                let resultado_parseo = self.matchear_string(elem.to_uppercase(), 
-                &mut proximo_word_name,
-                &mut es_texto,
-                &mut dentro_de_word,
-            );
-                self.tokens.push(resultado_parseo);
-            }
-        }
-        Ok(Devolucion::Vacio)
-    }
-
-    fn procesar_texto(&mut self, elem: &str, texto_acumulado: &mut String) -> bool {
-        if elem.contains("\"") {
-            let partes: Vec<&str> = elem.split('\"').collect();
-            texto_acumulado.push_str(partes[0]);
-            
-            let texto_final = std::mem::take(texto_acumulado);
-            self.tokens.push(TokenParseo::Texto(texto_final));
-            
-            return false;
-        } else {
-            texto_acumulado.push_str(elem);
-            texto_acumulado.push_str(" ");
-            
-            return true;
-        }
-    }
-
-    fn matchear_string(
-        &self,
-        elem: String,
-        proximo_word_name: &mut bool,
-        es_texto: &mut bool,
-        dentro_de_word: &mut bool
-    ) -> TokenParseo {
-        match elem.as_str() {
-            "+" | "-" | "/" | "*" | "AND" | "OR" | "<" | ">" |
-            "NOT" | "=" | "." | "CR" | "EMIT" | "DUP" | "DROP" |
-            "SWAP" | "OVER" => TokenParseo::Ejecutable(elem),
-            "IF" => TokenParseo::Ejecutable(elem),
-            "THEN" => TokenParseo::Ejecutable(elem),
-            "ELSE" => TokenParseo::Ejecutable(elem),
-            ":" => {
-                *proximo_word_name = true;
-                *dentro_de_word = true;
-                TokenParseo::SimboloInicioWord(elem)
-            },
-            ";" => {
-                *dentro_de_word = false;
-                TokenParseo::SimboloFinWord(elem)
-            },
-            ".\"" => {
-                *es_texto = true;
-                println!("error ./");
-                TokenParseo::Simbolo(elem)
-            },
-            _ => {
-                if *dentro_de_word{
-                    TokenParseo::WordName(elem)
-                }else{
-                    TokenParseo::Ejecutable(elem)
-                }
-            },
-        }
-    }
- */
 
     pub fn parseo(&self, leido: &[String]) -> Result<Vec<TokenParseo>, String> {
         let mut proximo_word_name = false;
@@ -139,11 +48,11 @@ impl Parser {
                 let token = self.encontrar_texto(&leido, &mut i);
                 resultado.push(token);
                 es_texto = false;
-            }/* else if elem.to_uppercase() == "IF"{
+            }else if elem.to_uppercase() == "IF"{
                 niveles_if += 1;
                 let token = self.hacer_if_dft(&leido, &mut i, &mut niveles_if)?;
                 resultado.push(token);
-            } */
+            }
             else{
                 let resultado_parseo = self.matchear_string(elem.to_uppercase(), 
                 &mut proximo_word_name,
@@ -157,7 +66,7 @@ impl Parser {
         Ok(resultado)
     }
 
-    /* fn hacer_if_dft(&self, leido: &[String], contador: &mut usize, niveles_if: &mut i16) -> Result<TokenParseo, String>{
+    fn hacer_if_dft(&self, leido: &[String], contador: &mut usize, niveles_if: &mut i16) -> Result<TokenParseo, String>{
         let mut contador_local: usize = 0;
         let mut contador_if: usize = 0;
         let mut hubo_else = false;
@@ -189,7 +98,7 @@ impl Parser {
             contador_local += 1;
         }
         Err("No se encontro THEN".to_string())
-    } */
+    }
 
     fn encontrar_texto(&self, leido: &[String], contador: &mut usize) -> TokenParseo {
         let mut texto_acumulado = String::new();

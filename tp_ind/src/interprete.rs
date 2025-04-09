@@ -1,5 +1,6 @@
-use std::env;
+use std::{env, vec};
 
+use crate::parametro_body::ParametroBody;
 use crate::stack::{self, Stack};
 use crate::{
     devolucion::Devolucion, forth::Forth, token_parseo:: TokenParseo,
@@ -7,30 +8,40 @@ use crate::{
 };
 
 
-pub fn armar_words_usuario<'a>(forth: &mut Forth<'a>, tokens: &'a Vec<TokenParseo>) -> Result<Devolucion, String>{
+pub fn armar_words_usuario<'a>(forth: &mut Forth<'a>, tokens: Vec<TokenParseo>) -> Result<Devolucion, String>{
     let mut en_armado_word = false;
-    let mut nombre_word_actual = String::new();
+    let mut body_actual: Vec<ParametroBody> = vec![];
+    let mut contador_words: usize = 0;
     for token in tokens{
         if en_armado_word {
-            let mut word_actual= forth.get_word_usuario_mut(&nombre_word_actual)?;
             match token{
                 TokenParseo::SimboloInicioWord(_) => return Err(String::from("parser error (simbolo inicio)")),
-                TokenParseo::SimboloFinWord(_) => en_armado_word = false,
+                TokenParseo::SimboloFinWord(_) => {
+                    en_armado_word = false;
+                    forth.bodys.push(body_actual);
+                    body_actual = vec![];
+                },
                 TokenParseo::Simbolo(_) => {},
-                _ => word_actual.agregar_elemento(token)
+                TokenParseo::DentroIF(vector) => {
+                    let vector_parseado = caso_if(vector);
+                    let nuevo_token = TokenParseo::DentroIF(vector_parseado);
+                    body_actual.push(ParametroBody::Token(nuevo_token));
+                },
+                TokenParseo::WordName(nombre) => {
+                    let indice = forth.encontrar_word(&nombre)?;
+                    body_actual.push(ParametroBody::Indice(indice));
+                },
+                TokenParseo::IF | TokenParseo::THEN | TokenParseo::ELSE => {},
+                _ => body_actual.push(ParametroBody::Token(token)),
             }
         }else{
             match token {
                 TokenParseo::WordName(nombre) => {
-                    nombre_word_actual = nombre.to_string();
+                    forth.words_usuarios.push(WordUsuario::new(nombre, contador_words));
+                    contador_words += 1;
                     en_armado_word = true;
-                    let mut word_actual= forth.get_word_usuario_mut(&nombre_word_actual);
-                    match word_actual{
-                        Ok(word_actual) => word_actual.get_body().clear(),
-                        Err(_) => forth.words_usuarios.push(WordUsuario::new(nombre.to_string())),
-                    }
                 }
-                TokenParseo::SimboloInicioWord(_) => {}
+                TokenParseo::SimboloInicioWord(_) => {},
                 TokenParseo::SimboloFinWord(_) => return Err(String::from("parser error (simbolo fin)")),
                 TokenParseo::Simbolo(_) => {},
                 _ => forth.restante.push(token),
@@ -38,6 +49,32 @@ pub fn armar_words_usuario<'a>(forth: &mut Forth<'a>, tokens: &'a Vec<TokenParse
         }
     }
     Ok(Devolucion::Vacio)
+}
+
+fn caso_if(dentro_token: Vec<TokenParseo>) -> Vec<TokenParseo>{
+    let mut nuevo_vector: Vec<TokenParseo> = vec![];
+    for elem in dentro_token{
+        match elem {
+            TokenParseo::SimboloInicioWord(_) => continue,
+            TokenParseo::SimboloFinWord(_) => continue,
+            TokenParseo::Simbolo(_) => continue,
+            TokenParseo::IF => continue,
+            TokenParseo::ELSE => continue,
+            TokenParseo::THEN => continue,
+            TokenParseo::DentroIF(token_parseos) => {
+                let sub_nivel = caso_if(token_parseos);
+                let nuevo_token = TokenParseo::DentroIF(sub_nivel);
+                nuevo_vector.push(nuevo_token);
+            },
+            TokenParseo::DentroELSE(token_parseos) => {
+                let sub_nivel = caso_if(token_parseos);
+                let nuevo_token = TokenParseo::DentroELSE(sub_nivel);
+                nuevo_vector.push(nuevo_token);
+            },
+            _ => nuevo_vector.push(elem),
+        }
+    }
+    nuevo_vector
 }
 
 pub fn interpretar_parametros() -> (usize, String){

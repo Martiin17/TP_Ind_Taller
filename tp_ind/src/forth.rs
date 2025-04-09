@@ -1,11 +1,12 @@
-use std::{collections::hash_set, vec};
+use std::{string, vec};
 
-use crate::{devolucion::Devolucion, stack::{self, Stack}, token_parseo::TokenParseo, utils::{
-    funciones_aritmetica, funciones_logicas, funciones_outup, funciones_stack, matchear_devolucion_numero}, word_usuario::WordUsuario};
+use crate::{devolucion::Devolucion, parametro_body::ParametroBody, stack::{self, Stack}, token_parseo::TokenParseo, utils::{
+    funciones_aritmetica, funciones_logicas, funciones_outup, funciones_stack, matchear_devolucion_numero}, word_usuario::{self, WordUsuario}};
 
 pub struct Forth<'a> {
     pub words_usuarios: Vec<WordUsuario<'a>>,
-    pub restante: Vec<&'a TokenParseo>,
+    pub restante: Vec<TokenParseo>,
+    pub bodys: Vec<Vec<ParametroBody>>,
 }
 
 impl <'a> Forth<'a> {
@@ -13,9 +14,20 @@ impl <'a> Forth<'a> {
         Self {
             words_usuarios: Vec::new(),
             restante: Vec::new(),
+            bodys: Vec::new(),
         }
     }
 
+    pub fn encontrar_word(&self, nombre: &String) -> Result<usize, String>{
+        for i in 0..self.words_usuarios.len(){
+            let i_invertido:usize = self.words_usuarios.len()-1-i;
+            let word_actual = &self.words_usuarios[i_invertido];
+            if word_actual.get_nombre() == nombre{
+                return  Ok(i_invertido);
+            }
+        }
+        Err(String::from("No se encontro la definicion dentro de la definicion"))
+    }
 
    pub fn set_word_usuarios(&mut self, nuevo_words_usuarios: Vec<WordUsuario<'a>>) {
         self.words_usuarios = nuevo_words_usuarios;
@@ -65,6 +77,9 @@ impl <'a> Forth<'a> {
                     Ok(Devolucion::Vacio)
                 }
             },
+            TokenParseo::DentroIF(_) => {
+                self.ejecutar_if(token_a_ejecutar, stack)
+            }
             _ => {
                 return Err("error ejecucion".to_string())}
         };
@@ -72,33 +87,92 @@ impl <'a> Forth<'a> {
     }
 
     fn encontrar_word_ejecutar(&self, string_ejecutable: &String, stack: &mut Stack) -> Result<bool, String> {
-        let mut encontrado = false;
-        for word in &self.words_usuarios{
+        //let encontrado = false;
+        let indice_word = self.encontrar_word(string_ejecutable)?;
+        self.ejecutar_por_indice(&indice_word, stack)?;
+        /* for word in &self.words_usuarios{
             if word.get_nombre() == string_ejecutable{
                 encontrado = true;
-                let mut i: usize = 0;
-                while i < word.get_body_not_mut().len(){
-                    let token = &word.get_body_not_mut()[i];
-                    match token{
-                        TokenParseo::IF => {
-                            let aux = self.ejecutar_if(stack, &word.get_body_not_mut()[i..word.get_body_not_mut().len()])?;
-                            if let Devolucion::Indice(idx) = aux{
-                                i += idx;
-                            }
-                            i += 1;
-                        },
-                        TokenParseo::ELSE => i += 1,
-                        TokenParseo::THEN => i += 1,
-                        _ => {
-                            self.ejecutar(token, stack)?;
-                            i += 1;
-                        }
-                    }
+                self.ejecutar_por_indice(word.get_indice(), stack)?;
+                break;
+            }
+        } */
+        //Ok(encontrado)
+        Ok(true)
+    }
+
+    fn ejecutar_por_indice(&self, indice: &usize, stack: &mut Stack) -> Result<Devolucion, String>{
+        for tokens_ejecutar in self.bodys.get(*indice){
+            for token in tokens_ejecutar{
+                match token{
+                    ParametroBody::Token(token_actual) => {
+                        self.ejecutar(token_actual, stack)?;
+                    },
+                    ParametroBody::Indice(indice) => {
+                        self.ejecutar_por_indice(indice, stack)?;
+                    },
                 }
             }
         }
-            Ok(encontrado)
+        Ok(Devolucion::Vacio)
     }
+
+    fn ejecutar_if(&self, token: &TokenParseo, stack: &mut Stack) -> Result<Devolucion, String> {
+        let cond = stack.pop()?;
+        let cond = matchear_devolucion_numero(cond)
+            .ok_or(String::from("No se pudo extraer el numero del stack"))?;
+
+        if let TokenParseo::DentroIF(vector) = token{
+            for token_dentro_if in vector{
+                match token_dentro_if{
+                    TokenParseo::Numero(_) | TokenParseo::Texto(_) |
+                    TokenParseo::Ejecutable(_)=> {
+                        if cond == -1{
+                            self.ejecutar(token_dentro_if, stack)?;
+                        }
+                    },
+                    TokenParseo::DentroIF(_) => {
+                        if cond == -1{
+                            self.ejecutar_if(token_dentro_if, stack)?;
+                        }
+                    },
+                    TokenParseo::DentroELSE(tokens_else) => {
+                        if cond != -1{
+                            for token_else in tokens_else{
+                                self.ejecutar(token_else, stack)?;
+                            }
+                        }
+                    },
+                    _ => {
+                        return Err(String::from("Llego a token if un token que no puede ser"));
+                    },
+                }
+            }
+            return Ok(Devolucion::Vacio);
+        }
+        Err(String::from("No llego un token if a ejecutar if"))
+    }
+
+    /* fn ejecutar_condicion_verdadera(&self, vector: &Vec<TokenParseo>, stack: &mut Stack) -> Result<Devolucion, String> {
+        for token_dentro_if in vector{
+            match token_dentro_if{
+                TokenParseo::Numero(_) | TokenParseo::Texto(_) |
+                TokenParseo::Ejecutable(_)=> {
+                    self.ejecutar(token_dentro_if, stack)?;
+                },
+                TokenParseo::DentroIF(_) => {
+                    self.ejecutar_if(token_dentro_if, stack)?;
+                },
+                TokenParseo::DentroELSE(_) => {
+                    continue;
+                },
+                _ => {
+                    return Err(String::from("Llego a token if un token que no puede ser"));
+                },
+            }
+        }
+        return Ok(Devolucion::Vacio);
+    } */
 
     fn matchear_ejecutable(&self, string_ejecutable: &String, stack: &mut Stack) -> Result<Devolucion, String> {
         match string_ejecutable.as_str(){
@@ -124,7 +198,7 @@ impl <'a> Forth<'a> {
         }
     }  
 
-    fn ejecutar_if(&self, stack: &mut Stack, tokens: &[&TokenParseo]) -> Result<Devolucion, String>{
+    /* fn ejecutar_if(&self, stack: &mut Stack, tokens: &[&TokenParseo]) -> Result<Devolucion, String>{
         let cond = stack.pop()?;
         let cond = matchear_devolucion_numero(cond)
             .ok_or(String::from("No se pudo extraer el numero del stack"))?;
@@ -255,61 +329,5 @@ impl <'a> Forth<'a> {
             contador_local += 1;
         }
         Err("no se cerro bien el if".to_string())
-    }
-
-    /* fn verificar_cant_if(&mut self){
-        for word in &self.words_usuarios{
-            let cantidad_if = self.contar_cantidad_if(&word);
-            while cantidad_if > 0 {
-                
-            }
-        }
-    }
-
-    //devuelve cantidad de if, inicio if, fin if, inicio else, fin else
-    fn contar_cantidad_if(&self, word: &WordUsuario) -> (usize, usize, usize, usize, usize){
-        let mut contador: usize = 0;
-        let mut inicio_if: usize = 0;
-        let mut fin_if: usize = 0;
-        let mut inicio_else: usize = 0;
-        let mut fin_else: usize = 0;
-        for elem in word.get_body_not_mut(){
-            if let TokenParseo::Ejecutable(string) = elem{
-                if string == &(String::from("IF")){
-                    contador += 1;
-                }
-            }
-        }
-        (contador, inicio_if, fin_if, inicio_else, fin_else)
-    }
-
-    fn armar_if_word(&self, word_actual: &WordUsuario){
-        let mut inicio_if: usize = 0;
-        let mut fin_if: usize = 0;
-        let mut inicio_else: usize = 0;
-        let mut fin_else: usize = 0;
-        let mut hay_else = false;
-        for i in 0..word_actual.get_body_not_mut().len(){
-            let elem = word_actual.get_body_not_mut()[i];
-            if let TokenParseo::Ejecutable(string) = elem{
-                if string == &(String::from("IF")){
-                    inicio_if = i;
-                }
-                if string == &(String::from("ELSE")){
-                    hay_else = true;
-                    inicio_else = i;
-                    fin_if = i;
-                }
-                if string == &(String::from("THEN")){
-                    if hay_else{
-                        fin_else = i;
-                        fin_if = i;
-                    }else{
-                        fin_if = i;
-                    }
-                }
-            }
-        }
     } */
-
 }
