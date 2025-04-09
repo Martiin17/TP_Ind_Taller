@@ -10,7 +10,7 @@ use tp_ind::{token_parseo::TokenParseo, word_usuario::WordUsuario};
 
 #[test]
 fn metodo_escritura_y_lectura() -> Result<(), String>{
-    escribir_en_archivo(&vec![String::from(":"), String::from("CINCO"), String::from("5"), String::from(";")])?;
+    escribir_en_archivo(": CINCO 5 ;")?;
     let lectura = leer_archivo_y_almacenar_parser()?;
     let lectura_esperada = vec![String::from(":"), String::from("CINCO"), String::from("5"), String::from(";")];
     assert_eq!(lectura, lectura_esperada);
@@ -46,8 +46,7 @@ fn metodo_creacion_word_usuario() -> Result<(), String>{
 
 #[test]
 fn metodo_ejemplo_sencillo() -> Result<(), String> {
-    escribir_en_archivo(&vec![String::from(":"), String::from("CINCO"), 
-    String::from("5"), String::from(";"), String::from("\n"), String::from("CINCO")])?;
+    escribir_en_archivo(": CINCO 5 ; \n CINCO")?;
     set_up()?;
     let leido_del_stack = leer_stack()?;
     assert_eq!(leido_del_stack, vec![5]);

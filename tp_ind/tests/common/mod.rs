@@ -49,10 +49,20 @@ pub fn crear_word_usuario<'a>(tokens: &'a  Vec<TokenParseo>) -> Result<Vec<WordU
     Ok(forth_test.words_usuarios)
 }
 
-pub fn escribir_en_archivo(texto_a_escribir: &Vec<String>) -> Result<(), String> {
+fn crear_texto_a_imprimir(texto: &str) -> Vec<String>{
+    let texto_separado = texto.split_whitespace();
+    let mut resultado: Vec<String> = vec![];
+    for palabra in texto_separado{
+        resultado.push(String::from(palabra));
+    }
+    resultado
+}
+
+pub fn escribir_en_archivo(texto: &str) -> Result<(), String> {
     let mut archivo = File::create(RUTA_ARCHIVO)
     .map_err(|e| format!("Error {} al escribir en {}", e, RUTA_ARCHIVO))?;
 
+    let texto_a_escribir = crear_texto_a_imprimir(&texto);
     for (i, linea) in texto_a_escribir.iter().enumerate() {
         if i > 0 {
             write!(archivo, " ")
