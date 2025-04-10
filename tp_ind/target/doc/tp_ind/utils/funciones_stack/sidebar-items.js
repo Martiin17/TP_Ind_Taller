@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["ejecutar_drop","ejecutar_dup","ejecutar_int","ejecutar_over","ejecutar_rot","ejecutar_swap"]};

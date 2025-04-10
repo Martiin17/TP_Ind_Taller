@@ -1,4 +1,4 @@
-use crate::{devolucion::Devolucion, funcion::Funcion, stack::Stack};
+/* use crate::{devolucion::Devolucion, funcion::Funcion, stack::Stack};
 
 #[derive(Debug)]
 pub struct WordPrimitiva {
@@ -71,3 +71,4 @@ impl WordPrimitiva {
         }
     }
 }
+ */

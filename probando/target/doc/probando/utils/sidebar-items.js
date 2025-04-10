@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["escribir_resultados","leer_resultados","operar"]};

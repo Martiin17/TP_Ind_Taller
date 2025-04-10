@@ -1,51 +1,65 @@
+//! Contiene las funciones de interpretacion de Tokens
+
 use std::{env, vec};
 
 use crate::parametro_body::ParametroBody;
 use crate::stack::Stack;
 use crate::{
-    devolucion::Devolucion, forth::Forth, token_parseo:: TokenParseo,
-    word_usuario::WordUsuario,
+    devolucion::Devolucion, forth::Forth, token_parseo::TokenParseo, word_usuario::WordUsuario,
 };
 
 use std::fs::File;
 use std::io::{self, Write};
 
-pub fn formar_bodys(forth: &mut Forth, tokens: Vec<TokenParseo>) -> Result<Devolucion, String>{
+/// Forma los bodys de Forth
+/// 
+/// #Parametros
+/// 
+/// forth --> Recibe un tipo Forth mutable (donde se pondra el body conseguido)
+/// 
+/// tokens --> Recibe la lista de TokenParseo a agregar en forth
+pub fn formar_bodys(forth: &mut Forth, tokens: Vec<TokenParseo>) -> Result<Devolucion, String> {
     let mut en_armado_word = false;
     let mut body_actual: Vec<ParametroBody> = vec![];
     let mut contador_words: usize = 0;
-    for token in tokens{
+    for token in tokens {
         if en_armado_word {
-            match token{
-                TokenParseo::SimboloInicioWord(_) => return Err(String::from("parser-error (simbolo inicio)")),
+            match token {
+                TokenParseo::SimboloInicioWord(_) => {
+                    return Err(String::from("parser-error (simbolo inicio)"));
+                }
                 TokenParseo::SimboloFinWord(_) => {
                     en_armado_word = false;
                     forth.bodys.push(body_actual);
                     body_actual = vec![];
-                },
-                TokenParseo::Simbolo(_) => {},
+                }
+                TokenParseo::Simbolo(_) => {}
                 TokenParseo::DentroIF(vector) => {
                     let vector_parseado = caso_if(vector);
                     let nuevo_token = TokenParseo::DentroIF(vector_parseado);
                     body_actual.push(ParametroBody::Token(nuevo_token));
-                },
+                }
                 TokenParseo::WordName(nombre) => {
                     let indice = forth.encontrar_word_para_armar_body(&nombre)?;
                     body_actual.push(ParametroBody::Indice(indice));
-                },
-                TokenParseo::IF | TokenParseo::THEN | TokenParseo::ELSE => {},
+                }
+                TokenParseo::IF | TokenParseo::THEN | TokenParseo::ELSE => {}
                 _ => body_actual.push(ParametroBody::Token(token)),
             }
-        }else{
+        } else {
             match token {
                 TokenParseo::WordName(nombre) => {
-                    forth.words_usuarios.push(WordUsuario::new(nombre, contador_words));
+                    forth
+                        .words_usuarios
+                        .push(WordUsuario::new(nombre, contador_words));
                     contador_words += 1;
                     en_armado_word = true;
                 }
-                TokenParseo::SimboloInicioWord(_) => {},
-                TokenParseo::SimboloFinWord(_) => return Err(String::from("parser-error (simbolo fin)")),
-                TokenParseo::Simbolo(_) => {},
+                TokenParseo::SimboloInicioWord(_) => {}
+                TokenParseo::SimboloFinWord(_) => {
+                    return Err(String::from("parser-error (simbolo fin)"));
+                }
+                TokenParseo::Simbolo(_) => {}
                 _ => forth.restante.push(token),
             }
         }
@@ -53,9 +67,10 @@ pub fn formar_bodys(forth: &mut Forth, tokens: Vec<TokenParseo>) -> Result<Devol
     Ok(Devolucion::Vacio)
 }
 
-fn caso_if(dentro_token: Vec<TokenParseo>) -> Vec<TokenParseo>{
+/// Se encarga de ejecutar los casos de TokenParseo::DentroIF
+fn caso_if(dentro_token: Vec<TokenParseo>) -> Vec<TokenParseo> {
     let mut nuevo_vector: Vec<TokenParseo> = vec![];
-    for elem in dentro_token{
+    for elem in dentro_token {
         match elem {
             TokenParseo::SimboloInicioWord(_) => continue,
             TokenParseo::SimboloFinWord(_) => continue,
@@ -67,19 +82,20 @@ fn caso_if(dentro_token: Vec<TokenParseo>) -> Vec<TokenParseo>{
                 let sub_nivel = caso_if(token_parseos);
                 let nuevo_token = TokenParseo::DentroIF(sub_nivel);
                 nuevo_vector.push(nuevo_token);
-            },
+            }
             TokenParseo::DentroELSE(token_parseos) => {
                 let sub_nivel = caso_if(token_parseos);
                 let nuevo_token = TokenParseo::DentroELSE(sub_nivel);
                 nuevo_vector.push(nuevo_token);
-            },
+            }
             _ => nuevo_vector.push(elem),
         }
     }
     nuevo_vector
 }
 
-pub fn interpretar_parametros() -> (usize, String){
+/// Interpreta los parametros de ejecucion
+pub fn interpretar_parametros() -> (usize, String) {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 2 {
@@ -113,10 +129,12 @@ pub fn interpretar_parametros() -> (usize, String){
 }
 
 
+/// Escribe el contenido del stack en "stack.fth"
 pub fn escribir_stack(stack: &Stack) -> io::Result<()> {
-    let mut archivo = File::create("stack.fth")?; 
+    let mut archivo = File::create("stack.fth")?;
 
-    let contenido = stack.vector
+    let contenido = stack
+        .vector
         .iter()
         .rev()
         .map(|n| n.to_string())
@@ -126,4 +144,3 @@ pub fn escribir_stack(stack: &Stack) -> io::Result<()> {
     writeln!(archivo, "{}", contenido)?;
     Ok(())
 }
-

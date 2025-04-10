@@ -1,43 +1,60 @@
 mod common;
 
-use common::{crear_word_usuario, escribir_en_archivo, formar_tokens, leer_archivo_y_almacenar_parser, leer_stack, set_up};
+use common::{
+    crear_word_usuario, escribir_en_archivo, formar_tokens, leer_archivo_y_almacenar_parser,
+    leer_stack, set_up,
+};
 use tp_ind::{token_parseo::TokenParseo, word_usuario::WordUsuario};
 
 //cargo test -- --nocapture
 //cargo test -- --test-threads=1
 //RUST_TEST_THREADS=1 cargo test -- --nocapture
 
-
 #[test]
-fn metodo_escritura_y_lectura() -> Result<(), String>{
+fn metodo_escritura_y_lectura() -> Result<(), String> {
     escribir_en_archivo(": CINCO 5 ;")?;
     let lectura = leer_archivo_y_almacenar_parser()?;
-    let lectura_esperada = vec![String::from(":"), String::from("CINCO"), String::from("5"), String::from(";")];
+    let lectura_esperada = vec![
+        String::from(":"),
+        String::from("CINCO"),
+        String::from("5"),
+        String::from(";"),
+    ];
     assert_eq!(lectura, lectura_esperada);
     Ok(())
-    /* if lectura == lectura_esperada{
-        Ok(())
-    }else{
-        //Err(String::from("error en test de lectura"))
-    } */
 }
 
 #[test]
-fn metodo_creacion_tokens() -> Result<(), String>{
-    let leido = vec![String::from(":"), String::from("CINCO"), String::from("5"), String::from(";")];
+fn metodo_creacion_tokens() -> Result<(), String> {
+    let leido = vec![
+        String::from(":"),
+        String::from("CINCO"),
+        String::from("5"),
+        String::from(";"),
+    ];
     let tokens = formar_tokens(&leido)?;
-    let respuesta_correcta = vec![TokenParseo::SimboloInicioWord(String::from(":")), 
-    TokenParseo::WordName(String::from("CINCO")), TokenParseo::Numero(5), TokenParseo::SimboloFinWord(String::from(";"))];
+    let respuesta_correcta = vec![
+        TokenParseo::SimboloInicioWord(String::from(":")),
+        TokenParseo::WordName(String::from("CINCO")),
+        TokenParseo::Numero(5),
+        TokenParseo::SimboloFinWord(String::from(";")),
+    ];
     assert_eq!(tokens, respuesta_correcta);
     Ok(())
 }
 
 #[test]
-fn metodo_creacion_word_usuario() -> Result<(), String>{
-    let tokens = vec![TokenParseo::SimboloInicioWord(String::from(":")), 
-    TokenParseo::WordName(String::from("CINCO")), TokenParseo::Numero(5), TokenParseo::SimboloFinWord(String::from(";"))];
+fn metodo_creacion_word_usuario() -> Result<(), String> {
+    let tokens = vec![
+        TokenParseo::SimboloInicioWord(String::from(":")),
+        TokenParseo::WordName(String::from("CINCO")),
+        TokenParseo::Numero(5),
+        TokenParseo::SimboloFinWord(String::from(";")),
+    ];
     let (body, word) = crear_word_usuario(tokens)?;
-    let word_creada = word.get(0).ok_or("No se pudo crear la word para comparar")?;
+    let word_creada = word
+        .get(0)
+        .ok_or("No se pudo crear la word para comparar")?;
     let word_correcta = WordUsuario::new(String::from("CINCO"), 0);
     assert_eq!(*word_creada, word_correcta);
     Ok(())

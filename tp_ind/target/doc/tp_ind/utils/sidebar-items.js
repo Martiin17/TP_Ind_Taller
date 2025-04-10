@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["matchear_devolucion_numero"],"mod":["funciones_aritmetica","funciones_logicas","funciones_outup","funciones_stack"]};

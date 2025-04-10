@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["escribir_stack","formar_bodys","interpretar_parametros"]};

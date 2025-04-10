@@ -1,5 +1,6 @@
 mod utils;
 use utils::{leer_resultados, operar};
+mod descarte;
 
 fn crear_texto(texto: &str) -> Vec<String>{
     let texto_separado = texto.split_whitespace();

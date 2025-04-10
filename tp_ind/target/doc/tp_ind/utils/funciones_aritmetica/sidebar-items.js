@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["ejecutar_division","ejecutar_multiplicacion","ejecutar_resta","ejecutar_suma"]};

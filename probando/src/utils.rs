@@ -1,5 +1,12 @@
+//! Este modulo contiene utils.
 use std::fs::File;
 use std::io::{self, Write, Read};
+/// # Parametros
+/// - `a`: primer número.
+/// - `b`: segundo número.
+///
+/// # Retorna
+/// Vector con suma, div, mul y resta.
 
 pub fn operar(a: &i16, b:&i16) -> Result<Vec<i16>, String> {
     if *b == 0{
@@ -10,6 +17,14 @@ pub fn operar(a: &i16, b:&i16) -> Result<Vec<i16>, String> {
     Ok(resultados)
 }
 
+/// Suma dos números.
+///
+/// # Parámetros
+/// - `a`: primer número.
+/// - `b`: segundo número.
+///
+/// # Retorna
+/// La suma de `a` y `b`.
 pub fn escribir_resultados(vec: &Vec<i16>) -> io::Result<()> {
     let mut archivo = File::create("resultados_esperados.fth")?;
 

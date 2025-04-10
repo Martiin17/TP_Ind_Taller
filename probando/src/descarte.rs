@@ -1,4 +1,4 @@
-fn main() {
+/* fn main() {
     let vector_strings  = vec!["ola".to_string(), "7".to_string(), "ok".to_string(), "chau".to_string(), "india".to_string()];
     
     let mut v1: Vec<&String> = vec![&vector_strings[0], &vector_strings[1]];
@@ -28,4 +28,18 @@ fn main() {
 
     println!("{:?}", v1);
     println!("{:?}", v2);
+} */
+
+//! Este módulo contiene funciones matemáticas básicas.
+
+/// Suma dos números.
+///
+/// # Parámetros
+/// - `a`: primer número.
+/// - `b`: segundo número.
+///
+/// # Retorna
+/// La suma de `a` y `b`.
+pub fn suma(a: i32, b: i32) -> i32 {
+    a + b
 }

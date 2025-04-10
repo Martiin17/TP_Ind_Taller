@@ -1,19 +1,20 @@
 use forth::Forth;
-use interprete::{formar_bodys, escribir_stack, interpretar_parametros};
+use interprete::{escribir_stack, formar_bodys, interpretar_parametros};
 use parser::Parser;
 use stack::Stack;
+use utils::funciones_aritmetica::{ejecutar_division, ejecutar_resta};
 
 mod devolucion;
 mod forth;
 mod funcion;
 mod interprete;
+mod parametro_body;
 mod parser;
 mod stack;
 mod token_parseo;
 mod utils;
 mod word_primitiva;
 mod word_usuario;
-mod parametro_body;
 
 fn main() {
     let (capacidad_stack, archivo_leer) = interpretar_parametros();
@@ -32,7 +33,7 @@ fn main() {
             //Ok(_) => println!("Todo ok. no muestro todos los tokens"),
             Err(e) => println!("{}", e),
         }
-        
+
         match formar_bodys(&mut forth_test, parser_test.tokens) {
             Ok(_) => {
                 println!("Todo ok");

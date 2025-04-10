@@ -1,3 +1,4 @@
+/// Representa los posibles Tokens que pueden ocurrir a la hora de parsear
 #[derive(Debug, PartialEq)]
 pub enum TokenParseo {
     Numero(i16),

@@ -1,1 +1,4 @@
-1 2 3 swap
+: foo 5 ;
+: bar foo ;
+: foo 6 ;
+bar foo
