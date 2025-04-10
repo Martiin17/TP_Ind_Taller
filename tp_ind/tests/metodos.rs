@@ -6,13 +6,14 @@ mod common;
 
 #[cfg(test)]
 mod metodo {
+    use crate::common;
+
     use common::{
         crear_word_usuario, escribir_en_archivo, formar_tokens, leer_archivo_y_almacenar_parser,
         leer_stack, set_up,
     };
-    use tp_ind::{token_parseo::TokenParseo, word_usuario::WordUsuario};
 
-    use crate::common;
+    use tp_ind::{token_parseo::TokenParseo, word_usuario::WordUsuario};
 
     #[test]
     fn escritura_y_lectura() -> Result<(), String> {

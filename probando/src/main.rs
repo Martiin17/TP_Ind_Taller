@@ -2,10 +2,10 @@ mod utils;
 use utils::{leer_resultados, operar};
 mod descarte;
 
-fn crear_texto(texto: &str) -> Vec<String>{
-    let texto_separado = texto.split_whitespace();
+fn crear_linea(linea: &str) -> Vec<String>{
+    let linea_separado = linea.split_whitespace();
     let mut resultado: Vec<String> = vec![];
-    for palabra in texto_separado{
+    for palabra in linea_separado{
         resultado.push(String::from(palabra));
     }
     resultado
@@ -16,6 +16,7 @@ fn imprimir_lo_escrito(vector_palabras: &Vec<String>) {
         println!("{}", palabra);
     }
 }
+ 
 fn main(){
     /* let a:i16 = 5;
     let b:i16 = 2;
@@ -29,9 +30,9 @@ fn main(){
         },
         Err(e) => println!("error: {}", e),
     } */
-   let vector_palabras = crear_texto(": CINCO 5 ;
+   /* let vector_palabras = crear_linea(": CINCO 5 ;
     CINCO");
-   imprimir_lo_escrito(&vector_palabras);
+   imprimir_lo_escrito(&vector_palabras); */
 
 }
 

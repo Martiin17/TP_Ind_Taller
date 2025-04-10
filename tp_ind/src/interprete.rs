@@ -96,17 +96,16 @@ fn caso_if(dentro_token: Vec<TokenParseo>) -> Vec<TokenParseo> {
 }
 
 /// Interpreta los parametros de ejecucion
-pub fn interpretar_parametros() -> (usize, String) {
+pub fn interpretar_parametros() -> Result<(usize, String), String> {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 2 {
-        println!("No se llamo al proyecto con un formato invalido");
-        std::process::exit(1);
+        return Err(String::from("No se llamo al proyecto con un formato invalido"));
     }
 
     let ruta_fth = &args[1];
 
-    let mut stack_size: usize = 128;
+    let mut stack_size: usize = 128/2;
 
     if args.len() >= 3 {
         let arg2 = &args[2];
@@ -116,17 +115,15 @@ pub fn interpretar_parametros() -> (usize, String) {
                     stack_size = size;
                 }
                 Err(_) => {
-                    println!("El valor de stack-size debe ser un nro entero");
-                    std::process::exit(1);
+                    return Err(String::from("El valor de stack-size debe ser un nro entero"));
                 }
             }
         } else {
-            println!("El segundo argumento debe tener el formato stack-size={{número}}");
-            std::process::exit(1);
+            return Err(String::from("El segundo argumento debe tener el formato 'stack-size=numero'"));
         }
     }
-    let capacidad_stack: usize = stack_size;
-    (capacidad_stack, ruta_fth.to_string())
+    let capacidad_stack: usize = stack_size/2;
+    Ok((capacidad_stack, ruta_fth.to_string()))
 }
 
 

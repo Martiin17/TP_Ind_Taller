@@ -1,11 +1,9 @@
 pub mod devolucion;
 pub mod forth;
-pub mod funcion;
 pub mod interprete;
 pub mod parametro_body;
 pub mod parser;
 pub mod stack;
 pub mod token_parseo;
 pub mod utils;
-pub mod word_primitiva;
 pub mod word_usuario;

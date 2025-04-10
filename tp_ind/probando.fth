@@ -1,1 +1,1 @@
-: CINCO 5 ;
+." hello       world!"

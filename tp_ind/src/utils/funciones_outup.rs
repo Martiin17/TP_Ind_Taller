@@ -23,7 +23,8 @@ pub fn ejecutar_emit(stack: &mut Stack) -> Result<Devolucion, String> {
     let numero = stack.pop()?;
     let numero = matchear_devolucion_numero(numero)?;
     if (0..=255).contains(&numero) {
-        println!("{}", (numero as u8 as char));
+        print!("{}", (numero as u8 as char));
+        print!(" ");
     }
     Ok(Devolucion::Vacio)
 }
@@ -38,6 +39,7 @@ pub fn ejecutar_emit(stack: &mut Stack) -> Result<Devolucion, String> {
 /// 
 pub fn ejecutar_punto_y_coma(stack: &mut Stack, texto: &String) -> Result<Devolucion, String> {
     let _ = stack;
-    println!("{}", texto);
+    print!("{}", texto);
+    print!(" ");
     Ok(Devolucion::Vacio)
 }
