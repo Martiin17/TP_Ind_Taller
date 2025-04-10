@@ -79,12 +79,14 @@ impl Parser {
         contador: &mut usize,
         niveles_if: &mut i16,
     ) -> Result<TokenParseo, String> {
-        let mut contador_local: usize = 0;
+        //let mut contador_local: usize = 0;
         let mut contador_if: usize = 0;
         let mut hubo_else = false;
-        for i in *contador + 1..leido.len() {
+        //for i in *contador + 1..leido.len() 
+        println!("Lo leido fue {:?}", leido);
+        for (contador_local, i) in (*contador + 1..leido.len()).enumerate(){
             let elem = &leido[i];
-            if elem.to_uppercase() == "THEN" {
+            if elem.to_uppercase() == "THEN"{
                 *niveles_if -= 1;
                 if *niveles_if == 0 && !hubo_else {
                     let vector = self.parseo(&leido[*contador + 1..i])?;
@@ -95,6 +97,7 @@ impl Parser {
                     let mut vector_if = self.parseo(&leido[*contador + 1..contador_if])?;
                     let vector_else = self.parseo(&leido[contador_if + 1..i])?;
                     let token_else = TokenParseo::DentroELSE(vector_else);
+                    println!("token else {:?}", token_else);
                     vector_if.push(token_else);
                     *contador += contador_local;
                     return Ok(TokenParseo::DentroIF(vector_if));
@@ -107,7 +110,7 @@ impl Parser {
                 contador_if = i;
                 hubo_else = true;
             }
-            contador_local += 1;
+            //contador_local += 1;
         }
         Err("No se encontro THEN".to_string())
     }
@@ -118,9 +121,9 @@ impl Parser {
     fn encontrar_texto(&self, leido: &[String], contador: &mut usize) -> TokenParseo {
         let mut texto_acumulado = String::new();
         let mut contador_local: usize = 0;
-        for i in *contador..leido.len() {
-            let elem = &leido[i];
-            println!("elem: {}", elem);
+        //for i in *contador..leido.len() 
+        for elem in leido.iter().skip(*contador){
+            //let elem = &leido[i];
             if elem.contains("\"") {
                 let partes: Vec<&str> = elem.split('\"').collect();
                 texto_acumulado.push_str(partes[0]);

@@ -29,7 +29,7 @@ impl Stack {
             self.vector.push(elem);
             Ok(Devolucion::Vacio)
         } else {
-            Err("Stack-overflow".to_string())
+            Err("stack-overflow".to_string())
         }
     }
 
@@ -38,7 +38,7 @@ impl Stack {
         if let Some(elem) = self.vector.pop() {
             Ok(Devolucion::Numero(elem))
         } else {
-            Err("Stack-underflow".to_string())
+            Err("stack-underflow".to_string())
         }
     }
 }

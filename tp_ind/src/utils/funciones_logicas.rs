@@ -96,7 +96,7 @@ pub fn ejecutar_or(stack: &mut Stack) -> Result<Devolucion, String> {
 pub fn ejecutar_not(stack: &mut Stack) -> Result<Devolucion, String> {
     let a = stack.pop()?;
     let a = matchear_devolucion_numero(a)?;
-    if a != 0 {
+    if a == 0 {
         stack.push(-1)?;
     } else {
         stack.push(0)?;

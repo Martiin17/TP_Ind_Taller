@@ -14,7 +14,7 @@ pub fn ejecutar_punto(stack: &mut Stack) -> Result<Devolucion, String> {
 ///
 pub fn ejecutar_cr(stack: &mut Stack) -> Result<Devolucion, String> {
     let _ = stack;
-    println!("");
+    println!();
     Ok(Devolucion::Vacio)
 }
 

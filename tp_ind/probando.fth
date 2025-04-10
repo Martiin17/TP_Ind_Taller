@@ -1,4 +1,1 @@
-: foo 5 ;
-: bar foo ;
-: foo 6 ;
-bar foo
+: CINCO 5 ;

@@ -75,18 +75,22 @@ impl Forth {
         token_a_ejecutar: &TokenParseo,
         stack: &mut Stack,
     ) -> Result<Devolucion, String> {
-        let _ = match token_a_ejecutar {
-            TokenParseo::Numero(nro) => funciones_stack::ejecutar_int(stack, *nro),
-            TokenParseo::Texto(texto) => funciones_outup::ejecutar_punto_y_coma(stack, texto),
+        match token_a_ejecutar {
+            TokenParseo::Numero(nro) => {
+                funciones_stack::ejecutar_int(stack, *nro)?;
+            },
+            TokenParseo::Texto(texto) => {
+                funciones_outup::ejecutar_punto_y_coma(stack, texto)?;
+            },
             TokenParseo::Ejecutable(string_ejecutable) => {
                 let encontrado = self.encontrar_word_ejecutar(string_ejecutable, stack)?;
                 if !encontrado {
-                    self.matchear_ejecutable(string_ejecutable, stack)
-                } else {
-                    Ok(Devolucion::Vacio)
+                    self.matchear_ejecutable(string_ejecutable, stack)?;
                 }
-            }
-            TokenParseo::DentroIF(_) => self.ejecutar_if(token_a_ejecutar, stack),
+            },
+            TokenParseo::DentroIF(_) => {
+                self.ejecutar_if(token_a_ejecutar, stack)?;
+            },
             _ => return Err(String::from("ejecution-error")),
         };
         Ok(Devolucion::Vacio)
@@ -131,7 +135,8 @@ impl Forth {
     /// Para ejecutar ```Indice(0)``` es donde se utiliza esta funcion ya que toma el body con ese indice
     /// y lo ejecuta (en este caso ```Token(Numero(5))```)
     fn ejecutar_por_indice(&self, indice: &usize, stack: &mut Stack) -> Result<Devolucion, String> {
-        for tokens_ejecutar in self.bodys.get(*indice) {
+        //for tokens_ejecutar in self.bodys.get(*indice)
+        if let Some(tokens_ejecutar) = self.bodys.get(*indice) {
             for token in tokens_ejecutar {
                 match token {
                     ParametroBody::Token(token_actual) => {
@@ -161,6 +166,13 @@ impl Forth {
                     }
                     TokenParseo::DentroIF(_) => {
                         if cond == -1 {
+                            /* for token_if in tokens_if {
+                                if let TokenParseo::DentroIF(_) = token_if{
+                                    self.ejecutar_if(token_if, stack)?;
+                                }else{
+                                    self.ejecutar(token_dentro_if, stack)?;
+                                }
+                            } */
                             self.ejecutar_if(token_dentro_if, stack)?;
                         }
                     }
@@ -186,10 +198,10 @@ impl Forth {
     /// Matchea los simbolos con sus respectivas funciones
     fn matchear_ejecutable(
         &self,
-        string_ejecutable: &String,
+        string_ejecutable: &str,
         stack: &mut Stack,
     ) -> Result<Devolucion, String> {
-        match string_ejecutable.as_str() {
+        match string_ejecutable {
             "+" => funciones_aritmetica::ejecutar_suma(stack),
             "-" => funciones_aritmetica::ejecutar_resta(stack),
             "/" => funciones_aritmetica::ejecutar_division(stack),

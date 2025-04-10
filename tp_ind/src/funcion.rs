@@ -1,4 +1,4 @@
-use crate::{devolucion::Devolucion, stack::Stack};
+/* use crate::{devolucion::Devolucion, stack::Stack};
 
 #[derive(Debug)]
 pub enum Funcion {
@@ -7,3 +7,4 @@ pub enum Funcion {
     StackYTexto(fn(&mut Stack, &String) -> Result<Devolucion, String>),
     StackYNumero(fn(&mut Stack, i16) -> Result<Devolucion, String>),
 }
+ */

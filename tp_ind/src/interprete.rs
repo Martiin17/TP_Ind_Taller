@@ -49,6 +49,7 @@ pub fn formar_bodys(forth: &mut Forth, tokens: Vec<TokenParseo>) -> Result<Devol
         } else {
             match token {
                 TokenParseo::WordName(nombre) => {
+                    verificar_nombre_no_numero(&nombre)?;
                     forth
                         .words_usuarios
                         .push(WordUsuario::new(nombre, contador_words));
@@ -105,14 +106,14 @@ pub fn interpretar_parametros() -> (usize, String) {
 
     let ruta_fth = &args[1];
 
-    let mut stack_size: usize = 128 * 1024; // 128 KB
+    let mut stack_size: usize = 128;
 
     if args.len() >= 3 {
         let arg2 = &args[2];
         if let Some(size_str) = arg2.strip_prefix("stack-size=") {
             match size_str.parse::<usize>() {
                 Ok(size) => {
-                    stack_size = size * 1024;
+                    stack_size = size;
                 }
                 Err(_) => {
                     println!("El valor de stack-size debe ser un nro entero");
@@ -124,7 +125,7 @@ pub fn interpretar_parametros() -> (usize, String) {
             std::process::exit(1);
         }
     }
-    let capacidad_stack: usize = stack_size / std::mem::size_of::<i16>();
+    let capacidad_stack: usize = stack_size;
     (capacidad_stack, ruta_fth.to_string())
 }
 
@@ -143,4 +144,11 @@ pub fn escribir_stack(stack: &Stack) -> io::Result<()> {
 
     writeln!(archivo, "{}", contenido)?;
     Ok(())
+}
+
+fn verificar_nombre_no_numero(nombre: &str) -> Result<(), String> {
+    match nombre.parse::<i16>() {
+        Ok(_) => Err(String::from("invalid-word")),
+        Err(_) => Ok(()),
+    }
 }
