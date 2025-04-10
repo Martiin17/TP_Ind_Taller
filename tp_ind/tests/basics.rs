@@ -265,7 +265,7 @@ fn basic_non_transitive() -> Result<(), String>{
 }
 
 #[test]
-#[ignore = "Not function good (infinitive recursion)"]
+//#[ignore = "Not function good (infinitive recursion)"]
 fn basic_self_definition() -> Result<(), String>{
     escribir_en_archivo(": foo 10 ; \n : foo foo 1 + ; \n foo")?;
     set_up()?;

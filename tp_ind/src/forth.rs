@@ -28,6 +28,61 @@ impl Forth{
         Err(String::from("?"))
     }
 
+    pub fn encontrar_word_para_armar_body(&self, nombre: &String) -> Result<usize, String>{
+        //let mut primera_vez = true;
+        for i in 1..self.words_usuarios.len(){
+            let i_invertido:usize = self.words_usuarios.len()-1-i;
+            let word_actual = &self.words_usuarios[i_invertido];
+            if word_actual.get_nombre() == nombre{
+                /* if primera_vez{
+                    primera_vez = false;
+                    let loop_infinito = self.verificar_loop_infinito_2(&i_invertido);
+                    if loop_infinito{
+                        continue;
+                    }
+                } */
+                return Ok(i_invertido);
+            }
+        }
+        Err(String::from("?"))
+    }
+
+    fn verificar_loop_infinito_2(&self, indice_encontrado: &usize) -> bool{
+        let word_encontrada = &self.words_usuarios.get(*indice_encontrado);
+        match word_encontrada{
+            Some(word) => {
+                for tokens in self.bodys.get(*word.get_indice()){
+                    println!("llegue1 {:?}", tokens);
+                    for token in tokens{
+                        println!("llegue2{:?}", token);
+                        if let ParametroBody::Indice(numero) = token{
+                            //println!("numero{}, word indice {}", numero, word.get_indice());
+                            if numero == word.get_indice(){
+                                return true;
+                            }
+                        }
+                    }   
+                }
+                false   
+            },
+            None => false,
+        }
+    }
+
+    fn verificar_loop_infinito(&self, nombre: &String, indice_encontrado: &usize) -> bool{
+        let word_encontrada = &self.words_usuarios.get(*indice_encontrado);
+        match word_encontrada{
+            Some(word) => {
+                if word.get_nombre() == nombre{
+                    return true;
+                }else{
+                    return  false;
+                }
+            },
+            None => false,
+        }
+    }
+
     pub fn ejecutar_tokens(&self, stack: &mut Stack) -> Result<Devolucion, String>{
         for token in &self.restante{
             self.ejecutar(token, stack)?;
@@ -36,7 +91,6 @@ impl Forth{
     }
 
     pub fn ejecutar(&self, token_a_ejecutar: &TokenParseo, stack: &mut Stack) -> Result<Devolucion, String>{
-
         let _ = match token_a_ejecutar{
             TokenParseo::Numero(nro) => funciones_stack::ejecutar_int(stack, *nro),
             TokenParseo::Texto(texto) => funciones_outup::ejecutar_punto_y_coma(stack, texto),

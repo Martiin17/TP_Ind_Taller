@@ -30,7 +30,7 @@ pub fn formar_bodys(forth: &mut Forth, tokens: Vec<TokenParseo>) -> Result<Devol
                     body_actual.push(ParametroBody::Token(nuevo_token));
                 },
                 TokenParseo::WordName(nombre) => {
-                    let indice = forth.encontrar_word(&nombre)?;
+                    let indice = forth.encontrar_word_para_armar_body(&nombre)?;
                     body_actual.push(ParametroBody::Indice(indice));
                 },
                 TokenParseo::IF | TokenParseo::THEN | TokenParseo::ELSE => {},
