@@ -26,45 +26,28 @@ fn main() {
                     Ok(rta) => {
                         parser_test.tokens = rta;
                     },
-                    Err(e) => {
-                        println!("{}", e);
-                        return;
-                    },
+                    Err(e) => println!("{}", e),
                 }
 
                 match formar_bodys(&mut forth_test, parser_test.tokens) {
                     Ok(_) => (),
-                    Err(e) => {
-                        println!("{}", e);
-                        return;
-                    },
+                    Err(e) => println!("{}", e),
                 }
 
                 match forth_test.ejecutar_tokens(&mut stack_test) {
                     Ok(_) => (),
-                    Err(e) => {
-                        println!("{}", e);
-                        return;
-                    },
+                    Err(e) => println!("{}", e),
                 }
 
                 match escribir_stack(&stack_test) {
                     Ok(_) => (),
-                    Err(e) => {
-                        println!("{}", e);
-                        return;
-                    },
+                    Err(e) => println!("{}", e),
                 }
+
                 },
-                Err(e) => {
-                    println!("{}", e);
-                    return;
-                },
+                Err(e) => println!("{}", e),
             }
         },
-        Err(e) => {
-            println!("{}", e);
-            return;
-        },
+        Err(e) => println!("{}", e),
     }
 }

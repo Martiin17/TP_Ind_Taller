@@ -82,9 +82,9 @@ impl Parser {
         let mut contador_if: usize = 0;
         let mut hubo_else = false;
 
-        for (contador_local, i) in (*contador + 1..leido.len()).enumerate(){
+        for (contador_local, i) in (*contador+1..leido.len()).enumerate(){
             let elem = &leido[i];
-            if elem.to_uppercase() == "THEN"{
+            if elem.to_uppercase() == "THEN" || elem == "then"{
                 *niveles_if -= 1;
                 if *niveles_if == 0 && !hubo_else {
                     let vector = self.parseo(&leido[*contador + 1..i])?;
@@ -95,16 +95,15 @@ impl Parser {
                     let mut vector_if = self.parseo(&leido[*contador + 1..contador_if])?;
                     let vector_else = self.parseo(&leido[contador_if + 1..i])?;
                     let token_else = TokenParseo::DentroELSE(vector_else);
-                    println!("token else {:?}", token_else);
                     vector_if.push(token_else);
                     *contador += contador_local;
                     return Ok(TokenParseo::DentroIF(vector_if));
                 }
             }
-            if elem.to_uppercase() == "IF" {
+            if elem.to_uppercase() == "IF" || elem == "if"{
                 *niveles_if += 1;
             }
-            if elem.to_uppercase() == "ELSE" {
+            if elem.to_uppercase() == "ELSE" || elem == "else"{
                 contador_if = i;
                 hubo_else = true;
             }
