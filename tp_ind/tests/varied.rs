@@ -2,7 +2,7 @@ mod common;
 
 #[cfg(test)]
 mod varied {
-    use crate::common;
+    use crate::common::{self, comparar_resultado_print};
 
     use common::{comparar_resultado_stack, escribir_en_archivo};
 
@@ -109,22 +109,21 @@ mod varied {
     }
 
     #[test]
-    #[ignore = "Implemenacion de test por lectura de consola en proceso"]
     fn digit_to_string() -> Result<(), String> {
         escribir_en_archivo(
             ": f
         dup 0 = if
-          drop .' zero'
+          drop .\" zero\"
         else dup 1 = if
-          drop .' one'
+          drop .\" one\"
         else dup 2 = if
-          drop .' two'
+          drop .\" two\"
         then then then ;
       0 f cr
       1 f cr
       2 f cr
-      ",
-        )?;
+      ")?;
+        comparar_resultado_print("zero \none \ntwo \n")?;
         comparar_resultado_stack(vec![])
     }
 }

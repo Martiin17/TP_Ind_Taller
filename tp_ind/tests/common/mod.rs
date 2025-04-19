@@ -30,8 +30,7 @@ pub fn set_up() -> Result<(), String> {
 
     let _ = forth_test.ejecutar_tokens(&mut stack_test, &mut std::io::stdout())?;
 
-    let _ =
-        escribir_stack(&stack_test).map_err(|e| format!("Error {} al escribir en stack.fth", e))?;
+    let _ = escribir_stack(&stack_test).map_err(|e| format!("Error {} al escribir en stack.fth", e))?;
 
     Ok(())
 }
@@ -118,5 +117,12 @@ pub fn comparar_resultado_print(resultado_esperado: &str) -> Result<(), String> 
     let _ = set_up_devuelve_stack(&mut buffer)?;
     let obtenido = String::from_utf8(buffer.into_inner()).unwrap();
     assert_eq!(obtenido, resultado_esperado);
+    Ok(())
+}
+
+pub fn comparar_resultado_err(resultado_esperado: &str) -> Result<(), String> {
+    let resultado = set_up_devuelve_stack(&mut std::io::stdout());
+    assert!(resultado.is_err());
+    assert_eq!(resultado.unwrap_err(), resultado_esperado);
     Ok(())
 }

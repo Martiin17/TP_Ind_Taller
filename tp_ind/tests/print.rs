@@ -4,10 +4,7 @@ mod common;
 mod print {
     use crate::common::{self, comparar_resultado_print};
 
-    use common::{
-        comparar_resultado_stack, crear_word_usuario, escribir_en_archivo, formar_tokens,
-        leer_archivo_y_almacenar_parser, leer_stack, set_up,
-    };
+    use common::{comparar_resultado_stack, escribir_en_archivo};
 
     //use tp_ind::{token_parseo::TokenParseo, word_usuario::WordUsuario};
 
