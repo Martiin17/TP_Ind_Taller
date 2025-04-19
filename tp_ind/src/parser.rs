@@ -23,16 +23,38 @@ impl Parser {
         let path = Path::new(nombre_archivo);
         let file = File::open(path)?;
         let reader = io::BufReader::new(file);
-
+    
         let mut resultado: Vec<String> = Vec::new();
-
+        let mut sigue_texto = false;
+    
         for linea in reader.lines() {
-            let linea = linea?;
-            for word in linea.split_whitespace() {
-                resultado.push(word.to_string());
-            }
+            let mut linea = linea?;
+            linea.insert(0,' ');
+            linea.insert(linea.len(), ' ');
+    
+            self.leer_archivo_aux(&mut linea, &mut resultado, &mut sigue_texto);
         }
         Ok(resultado)
+    }
+    
+    fn leer_archivo_aux(&self, linea: &mut str, resultado: &mut Vec<String>, sigue_texto: &mut bool) {
+        let mut armado_string = String::new();
+        for word in linea.chars() {
+            if word == ' ' && !*sigue_texto{
+                if armado_string == ".\""{
+                    *sigue_texto = true;
+                }
+                if armado_string.is_empty(){
+                    continue;
+                }
+                resultado.push(armado_string);
+                armado_string = String::new();
+            }else if *sigue_texto && word == '\"'{
+                *sigue_texto = false
+            }else{
+                armado_string.push(word);
+            }
+        }
     }
 
     ///Se encarga de asignarle un TokenParseo a un slice de Strings
