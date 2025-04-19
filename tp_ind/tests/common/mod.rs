@@ -11,7 +11,7 @@ use tp_ind::{
 use std::fs::File;
 use std::io::{Read, Write};
 
-const CAPACIDAD_STACK: usize = 65536; //1024 * 128 * 1/2
+const CAPACIDAD_STACK: usize = 512; // 1024/2
 const RUTA_ARCHIVO: &str = "probando.fth";
 
 pub fn set_up() -> Result<(), String> {
@@ -28,7 +28,7 @@ pub fn set_up() -> Result<(), String> {
 
     let _ = formar_bodys(&mut forth_test, parser_test.tokens)?;
 
-    let _ = forth_test.ejecutar_tokens(&mut stack_test)?;
+    let _ = forth_test.ejecutar_tokens(&mut stack_test, &mut std::io::stdout())?;
 
     let _ =
         escribir_stack(&stack_test).map_err(|e| format!("Error {} al escribir en stack.fth", e))?;
@@ -36,7 +36,7 @@ pub fn set_up() -> Result<(), String> {
     Ok(())
 }
 
-pub fn set_up_devuelve_stack() -> Result<Stack, String> {
+pub fn set_up_devuelve_stack<W: Write>(salida: &mut W) -> Result<Stack, String> {
     let mut stack_test = Stack::new(CAPACIDAD_STACK);
     let mut parser_test = Parser::new();
     let mut forth_test = Forth::new();
@@ -50,7 +50,7 @@ pub fn set_up_devuelve_stack() -> Result<Stack, String> {
 
     let _ = formar_bodys(&mut forth_test, parser_test.tokens)?;
 
-    let _ = forth_test.ejecutar_tokens(&mut stack_test)?;
+    let _ = forth_test.ejecutar_tokens(&mut stack_test, salida)?;
 
     Ok(stack_test)
 }
@@ -60,6 +60,7 @@ pub fn leer_archivo_y_almacenar_parser() -> Result<Vec<String>, String> {
     parser_test
         .leer_archivo(RUTA_ARCHIVO)
         .map_err(|e| format!("Error {} al leer {}", e, RUTA_ARCHIVO))
+    
 }
 
 pub fn formar_tokens(leido: &Vec<String>) -> Result<Vec<TokenParseo>, String> {
@@ -76,30 +77,16 @@ pub fn crear_word_usuario<'a>(
     Ok((forth_test.bodys, forth_test.words_usuarios))
 }
 
-fn crear_texto_a_imprimir(texto: &str) -> Vec<String> {
-    let texto_separado = texto.split_whitespace();
-    let mut resultado: Vec<String> = vec![];
-    for palabra in texto_separado {
-        resultado.push(String::from(palabra));
-    }
-    resultado
-}
-
 pub fn escribir_en_archivo(texto: &str) -> Result<(), String> {
     let mut archivo = File::create(RUTA_ARCHIVO)
-        .map_err(|e| format!("Error {} al escribir en {}", e, RUTA_ARCHIVO))?;
+        .map_err(|e| format!("Error al crear archivo: {}", e))?;
 
-    let texto_a_escribir = crear_texto_a_imprimir(&texto);
-    for (i, linea) in texto_a_escribir.iter().enumerate() {
-        if i > 0 {
-            write!(archivo, " ")
-                .map_err(|e| format!("Error {} al escribir en {}", e, RUTA_ARCHIVO))?;
-        }
-        write!(archivo, "{}", linea)
-            .map_err(|e| format!("Error {} al escribir en {}", e, RUTA_ARCHIVO))?;
-    }
+    archivo
+        .write_all(texto.as_bytes())
+        .map_err(|e| format!("Error al escribir en archivo: {}", e))?;
 
     Ok(())
+
 }
 
 pub fn leer_stack() -> Result<Vec<i16>, String> {
@@ -121,7 +108,15 @@ pub fn leer_stack() -> Result<Vec<i16>, String> {
 }
 
 pub fn comparar_resultado_stack(resultado_esperado: Vec<i16>) -> Result<(), String> {
-    let stack_resultante = set_up_devuelve_stack()?;
+    let stack_resultante = set_up_devuelve_stack(&mut std::io::stdout())?;
     assert_eq!(stack_resultante.vector, resultado_esperado);
+    Ok(())
+}
+
+pub fn comparar_resultado_print(resultado_esperado: &str) -> Result<(), String> {
+    let mut buffer = std::io::Cursor::new(Vec::new());
+    let _ = set_up_devuelve_stack(&mut buffer)?;
+    let obtenido = String::from_utf8(buffer.into_inner()).unwrap();
+    assert_eq!(obtenido, resultado_esperado);
     Ok(())
 }

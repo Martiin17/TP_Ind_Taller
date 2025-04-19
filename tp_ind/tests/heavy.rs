@@ -5,10 +5,11 @@ mod heavy {
     use crate::common;
 
     use common::{comparar_resultado_stack, escribir_en_archivo};
-    
+
     #[test]
     fn do_not_clone() -> Result<(), String> {
-        escribir_en_archivo(": word1 1 ;
+        escribir_en_archivo(
+            ": word1 1 ;
         : word2 word1 word1 ;
         : word4 word2 word2 ;
         : word8 word4 word4 ;
@@ -36,7 +37,8 @@ mod heavy {
         : word33554432 word16777216 word16777216 ;
         : word67108864 word33554432 word33554432 ;
         : word134217728 word67108864 word67108864 ;
-        ")?;
+        ",
+        )?;
         comparar_resultado_stack(vec![])
     }
 }
