@@ -42,7 +42,7 @@ pub fn ejecutar_over(stack: &mut Stack) -> Result<Devolucion, String> {
 }
 
 /// Toma los 3 ultimos elementos del stack y mueve todos los elementos en el siguiente orden
-/// 
+///
 /// {a,b,c} --> {b,a,c}
 pub fn ejecutar_rot(stack: &mut Stack) -> Result<Devolucion, String> {
     let a = stack.pop()?;

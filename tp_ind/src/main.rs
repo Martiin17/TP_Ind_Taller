@@ -14,40 +14,39 @@ mod utils;
 mod word_usuario;
 
 fn main() {
-    match interpretar_parametros(){
+    match interpretar_parametros() {
         Ok((capacidad_stack, archivo_leer)) => {
             let mut stack_test = Stack::new(capacidad_stack);
             let mut parser_test = Parser::new();
             let mut forth_test = Forth::new();
 
-            match parser_test.leer_archivo(&archivo_leer){
+            match parser_test.leer_archivo(&archivo_leer) {
                 Ok(vector_string) => {
                     match parser_test.parseo(&vector_string) {
-                    Ok(rta) => {
-                        parser_test.tokens = rta;
-                    },
-                    Err(e) => println!("{}", e),
-                }
+                        Ok(rta) => {
+                            parser_test.tokens = rta;
+                        }
+                        Err(e) => println!("{}", e),
+                    }
 
-                match formar_bodys(&mut forth_test, parser_test.tokens) {
-                    Ok(_) => (),
-                    Err(e) => println!("{}", e),
-                }
+                    match formar_bodys(&mut forth_test, parser_test.tokens) {
+                        Ok(_) => (),
+                        Err(e) => println!("{}", e),
+                    }
 
-                match forth_test.ejecutar_tokens(&mut stack_test) {
-                    Ok(_) => (),
-                    Err(e) => println!("{}", e),
-                }
+                    match forth_test.ejecutar_tokens(&mut stack_test, &mut std::io::stdout()) {
+                        Ok(_) => (),
+                        Err(e) => println!("{}", e),
+                    }
 
-                match escribir_stack(&stack_test) {
-                    Ok(_) => (),
-                    Err(e) => println!("{}", e),
+                    match escribir_stack(&stack_test) {
+                        Ok(_) => (),
+                        Err(e) => println!("{}", e),
+                    }
                 }
-
-                },
                 Err(e) => println!("{}", e),
             }
-        },
+        }
         Err(e) => println!("{}", e),
     }
 }

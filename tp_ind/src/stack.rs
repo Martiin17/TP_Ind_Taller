@@ -1,7 +1,7 @@
 use crate::devolucion::Devolucion;
 
 /// struct Stack
-/// 
+///
 /// Representa el Stack utilizado en Forth 79
 #[derive(Debug)]
 pub struct Stack {
@@ -29,7 +29,7 @@ impl Stack {
             self.vector.push(elem);
             Ok(Devolucion::Vacio)
         } else {
-            Err("stack-overflow".to_string())
+            Err("stack-overflow\n".to_string())
         }
     }
 
@@ -38,7 +38,7 @@ impl Stack {
         if let Some(elem) = self.vector.pop() {
             Ok(Devolucion::Numero(elem))
         } else {
-            Err("stack-underflow".to_string())
+            Err("stack-underflow\n".to_string())
         }
     }
 }

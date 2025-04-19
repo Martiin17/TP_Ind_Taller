@@ -39,7 +39,7 @@ pub fn ejecutar_division(stack: &mut Stack) -> Result<Devolucion, String> {
     let b = stack.pop()?;
     let b = matchear_devolucion_numero(b)?;
     if a == 0 {
-        return Err(String::from("division-by-zero"));
+        return Err(String::from("division-by-zero\n"));
     } else {
         stack.push(b / a)?;
     }

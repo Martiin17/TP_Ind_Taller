@@ -9,15 +9,16 @@ use crate::{
     },
     word_usuario::WordUsuario,
 };
+use std::io::Write;
 
 /// struct Forth
-/// 
+///
 /// Es una estructura que nos permite almacenar:
-/// 
+///
 /// words_usuarios --> Las words de usuario
-/// 
+///
 /// bodys --> Los bodys de dichas words
-/// 
+///
 /// restante --> Los Tokens que no fueron parte de ninguna word (por lo que deben ser ejecutables si no hay ningun error)
 pub struct Forth {
     pub words_usuarios: Vec<WordUsuario>,
@@ -44,11 +45,11 @@ impl Forth {
                 return Ok(i_invertido);
             }
         }
-        Err(String::from("?"))
+        Err(String::from("?\n"))
     }
 
     /// Encuentra el indice del body de la word a partir del nombre de la misma
-    /// 
+    ///
     /// La diferencia con ```encontrar_word()``` es que aquí empezamos la busqueda sin contar el elemento actual
     pub fn encontrar_word_para_armar_body(&self, nombre: &String) -> Result<usize, String> {
         for i in 1..self.words_usuarios.len() {
@@ -58,57 +59,59 @@ impl Forth {
                 return Ok(i_invertido);
             }
         }
-        Err(String::from("?"))
+        Err(String::from("?\n"))
     }
 
     /// Ejecuta los tokens de restante
-    pub fn ejecutar_tokens(&self, stack: &mut Stack) -> Result<Devolucion, String> {
+    pub fn ejecutar_tokens<W: Write>(&self, stack: &mut Stack, writer: &mut W) -> Result<Devolucion, String> {
         for token in &self.restante {
-            self.ejecutar(token, stack)?;
+            self.ejecutar(token, stack, writer)?;
         }
         Ok(Devolucion::Vacio)
     }
 
     /// Matchea cada token de restante con su ejecucion
-    pub fn ejecutar(
+    pub fn ejecutar<W: Write>(
         &self,
         token_a_ejecutar: &TokenParseo,
         stack: &mut Stack,
+        writer: &mut W,
     ) -> Result<Devolucion, String> {
         match token_a_ejecutar {
             TokenParseo::Numero(nro) => {
                 funciones_stack::ejecutar_int(stack, *nro)?;
-            },
+            }
             TokenParseo::Texto(texto) => {
-                funciones_outup::ejecutar_punto_y_coma(stack, texto)?;
-            },
+                funciones_outup::ejecutar_punto_y_coma(writer, stack, texto)?;
+            }
             TokenParseo::Ejecutable(string_ejecutable) => {
-                let encontrado = self.encontrar_word_ejecutar(string_ejecutable, stack)?;
+                let encontrado = self.encontrar_word_ejecutar(string_ejecutable, stack, writer)?;
                 if !encontrado {
-                    self.matchear_ejecutable(string_ejecutable, stack)?;
+                    self.matchear_ejecutable(string_ejecutable, stack, writer)?;
                 }
-            },
+            }
             TokenParseo::DentroIF(_) => {
-                self.ejecutar_if(token_a_ejecutar, stack)?;
-            },
+                self.ejecutar_if(token_a_ejecutar, stack, writer)?;
+            }
             _ => return Err(String::from("ejecution-error")),
         };
         Ok(Devolucion::Vacio)
     }
 
     /// Busca el nombre de la word para ver si fue definida por el usuario
-    /// 
+    ///
     /// En caso de encontrarlo, ejecuta esa word y devuelve true
     /// En caso de no encontrarlo, devuelve false
-    fn encontrar_word_ejecutar(
+    fn encontrar_word_ejecutar<W: Write>(
         &self,
         string_ejecutable: &String,
         stack: &mut Stack,
+        writer: &mut W
     ) -> Result<bool, String> {
         let indice_word = self.encontrar_word(string_ejecutable);
         match indice_word {
             Ok(indice) => {
-                self.ejecutar_por_indice(&indice, stack)?;
+                self.ejecutar_por_indice(&indice, stack, writer)?;
             }
             Err(_) => {
                 return Ok(false);
@@ -118,32 +121,31 @@ impl Forth {
     }
 
     /// Ejecuta una word por el indice
-    /// 
+    ///
     /// Esta funcion es muy util cuando una word depende de otra
-    /// 
+    ///
     /// #Example:
-    /// 
+    ///
     /// : foo 5 ;
     /// : bar foo ;
     /// : foo 6 ;
     /// bar foo
-    /// 
+    ///
     ///  A partir del ejemplo, obtenemos:
-    /// 
+    ///
     /// ```forth bodys: [[Token(Numero(5))], [Indice(0)], [Token(Numero(6))]]```
-    /// 
+    ///
     /// Para ejecutar ```Indice(0)``` es donde se utiliza esta funcion ya que toma el body con ese indice
     /// y lo ejecuta (en este caso ```Token(Numero(5))```)
-    fn ejecutar_por_indice(&self, indice: &usize, stack: &mut Stack) -> Result<Devolucion, String> {
-        //for tokens_ejecutar in self.bodys.get(*indice)
+    fn ejecutar_por_indice<W: Write>(&self, indice: &usize, stack: &mut Stack, writer: &mut W) -> Result<Devolucion, String> {
         if let Some(tokens_ejecutar) = self.bodys.get(*indice) {
             for token in tokens_ejecutar {
                 match token {
                     ParametroBody::Token(token_actual) => {
-                        self.ejecutar(token_actual, stack)?;
+                        self.ejecutar(token_actual, stack, writer)?;
                     }
                     ParametroBody::Indice(indice) => {
-                        self.ejecutar_por_indice(indice, stack)?;
+                        self.ejecutar_por_indice(indice, stack, writer)?;
                     }
                 }
             }
@@ -152,7 +154,7 @@ impl Forth {
     }
 
     /// Ejecuta if
-    fn ejecutar_if(&self, token: &TokenParseo, stack: &mut Stack) -> Result<Devolucion, String> {
+    fn ejecutar_if<W: Write>(&self, token: &TokenParseo, stack: &mut Stack, writer: &mut W) -> Result<Devolucion, String> {
         let cond = stack.pop()?;
         let cond = matchear_devolucion_numero(cond)?;
 
@@ -160,26 +162,19 @@ impl Forth {
             for token_dentro_if in vector {
                 match token_dentro_if {
                     TokenParseo::Numero(_) | TokenParseo::Texto(_) | TokenParseo::Ejecutable(_) => {
-                        if cond == -1 {
-                            self.ejecutar(token_dentro_if, stack)?;
+                        if cond != 0 {
+                            self.ejecutar(token_dentro_if, stack, writer)?;
                         }
                     }
                     TokenParseo::DentroIF(_) => {
-                        if cond == -1 {
-                            /* for token_if in tokens_if {
-                                if let TokenParseo::DentroIF(_) = token_if{
-                                    self.ejecutar_if(token_if, stack)?;
-                                }else{
-                                    self.ejecutar(token_dentro_if, stack)?;
-                                }
-                            } */
-                            self.ejecutar_if(token_dentro_if, stack)?;
+                        if cond != 0 {
+                            self.ejecutar_if(token_dentro_if, stack, writer)?;
                         }
                     }
                     TokenParseo::DentroELSE(tokens_else) => {
-                        if cond != -1 {
+                        if cond == 0 {
                             for token_else in tokens_else {
-                                self.ejecutar(token_else, stack)?;
+                                self.ejecutar(token_else, stack, writer)?;
                             }
                         }
                     }
@@ -196,10 +191,11 @@ impl Forth {
     }
 
     /// Matchea los simbolos con sus respectivas funciones
-    fn matchear_ejecutable(
+    fn matchear_ejecutable<W: Write>(
         &self,
         string_ejecutable: &str,
         stack: &mut Stack,
+        writer: &mut W,
     ) -> Result<Devolucion, String> {
         match string_ejecutable {
             "+" => funciones_aritmetica::ejecutar_suma(stack),
@@ -212,15 +208,15 @@ impl Forth {
             ">" => funciones_logicas::ejecutar_mayor(stack),
             "NOT" => funciones_logicas::ejecutar_not(stack),
             "=" => funciones_logicas::ejecutar_igual(stack),
-            "." => funciones_outup::ejecutar_punto(stack),
-            "CR" => funciones_outup::ejecutar_cr(stack),
-            "EMIT" => funciones_outup::ejecutar_emit(stack),
+            "." => funciones_outup::ejecutar_punto(writer, stack),
+            "CR" => funciones_outup::ejecutar_cr(writer, stack),
+            "EMIT" => funciones_outup::ejecutar_emit(writer, stack),
             "DUP" => funciones_stack::ejecutar_dup(stack),
             "DROP" => funciones_stack::ejecutar_drop(stack),
             "SWAP" => funciones_stack::ejecutar_swap(stack),
             "OVER" => funciones_stack::ejecutar_over(stack),
             "ROT" => funciones_stack::ejecutar_rot(stack),
-            _ => Err(String::from("?")),
+            _ => Err(String::from("?\n")),
         }
     }
 }

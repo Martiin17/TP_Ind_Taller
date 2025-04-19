@@ -12,11 +12,11 @@ use std::fs::File;
 use std::io::{self, Write};
 
 /// Forma los bodys de Forth
-/// 
+///
 /// #Parametros
-/// 
+///
 /// forth --> Recibe un tipo Forth mutable (donde se pondra el body conseguido)
-/// 
+///
 /// tokens --> Recibe la lista de TokenParseo a agregar en forth
 pub fn formar_bodys(forth: &mut Forth, tokens: Vec<TokenParseo>) -> Result<Devolucion, String> {
     let mut en_armado_word = false;
@@ -98,14 +98,14 @@ fn caso_if(dentro_token: Vec<TokenParseo>) -> Vec<TokenParseo> {
 /// Interpreta los parametros de ejecucion
 pub fn interpretar_parametros() -> Result<(usize, String), String> {
     let args: Vec<String> = env::args().collect();
-
     if args.len() < 2 {
-        return Err(String::from("No se llamo al proyecto con un formato invalido"));
+        return Err(String::from(
+            "No se llamo al proyecto con un formato invalido",
+        ));
     }
 
     let ruta_fth = &args[1];
-
-    let mut stack_size: usize = 128/2;
+    let mut stack_size: usize = 128 / 2;
 
     if args.len() >= 3 {
         let arg2 = &args[2];
@@ -115,17 +115,20 @@ pub fn interpretar_parametros() -> Result<(usize, String), String> {
                     stack_size = size;
                 }
                 Err(_) => {
-                    return Err(String::from("El valor de stack-size debe ser un nro entero"));
+                    return Err(String::from(
+                        "El valor de stack-size debe ser un nro entero",
+                    ));
                 }
             }
         } else {
-            return Err(String::from("El segundo argumento debe tener el formato 'stack-size=numero'"));
+            return Err(String::from(
+                "El segundo argumento debe tener el formato 'stack-size=numero'",
+            ));
         }
     }
-    let capacidad_stack: usize = stack_size/2;
+    let capacidad_stack: usize = stack_size / 2;
     Ok((capacidad_stack, ruta_fth.to_string()))
 }
-
 
 /// Escribe el contenido del stack en "stack.fth"
 pub fn escribir_stack(stack: &Stack) -> io::Result<()> {
@@ -145,7 +148,7 @@ pub fn escribir_stack(stack: &Stack) -> io::Result<()> {
 
 fn verificar_nombre_no_numero(nombre: &str) -> Result<(), String> {
     match nombre.parse::<i16>() {
-        Ok(_) => Err(String::from("invalid-word")),
+        Ok(_) => Err(String::from("invalid-word\n")),
         Err(_) => Ok(()),
     }
 }

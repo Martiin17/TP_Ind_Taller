@@ -5,7 +5,7 @@ use std::path::Path;
 use std::vec;
 
 /// struct Parser
-/// 
+///
 /// Representa un conjunto de funciones que se encargan de parsear lo leido desde un archivo .fth
 #[derive(Debug)]
 pub struct Parser {
@@ -23,35 +23,40 @@ impl Parser {
         let path = Path::new(nombre_archivo);
         let file = File::open(path)?;
         let reader = io::BufReader::new(file);
-    
+
         let mut resultado: Vec<String> = Vec::new();
         let mut sigue_texto = false;
-    
+
         for linea in reader.lines() {
             let mut linea = linea?;
-            linea.insert(0,' ');
+            linea.insert(0, ' ');
             linea.insert(linea.len(), ' ');
-    
+
             self.leer_archivo_aux(&mut linea, &mut resultado, &mut sigue_texto);
         }
         Ok(resultado)
     }
-    
-    fn leer_archivo_aux(&self, linea: &mut str, resultado: &mut Vec<String>, sigue_texto: &mut bool) {
+
+    fn leer_archivo_aux(
+        &self,
+        linea: &mut str,
+        resultado: &mut Vec<String>,
+        sigue_texto: &mut bool,
+    ) {
         let mut armado_string = String::new();
         for word in linea.chars() {
-            if word == ' ' && !*sigue_texto{
-                if armado_string == ".\""{
+            if word == ' ' && !*sigue_texto {
+                if armado_string == ".\"" {
                     *sigue_texto = true;
                 }
-                if armado_string.is_empty(){
+                if armado_string.is_empty() {
                     continue;
                 }
                 resultado.push(armado_string);
                 armado_string = String::new();
-            }else if *sigue_texto && word == '\"'{
+            } else if *sigue_texto && word == '\"' {
                 *sigue_texto = false
-            }else{
+            } else {
                 armado_string.push(word);
             }
         }
@@ -73,8 +78,8 @@ impl Parser {
             } else if let Ok(nro) = elem.parse::<i16>() {
                 resultado.push(TokenParseo::Numero(nro));
             } else if es_texto {
-                let token = self.encontrar_texto(leido, &mut i);
-                resultado.push(token);
+                //let token = self.encontrar_texto(leido, &mut i);
+                resultado.push(TokenParseo::Texto(elem.to_string()));
                 es_texto = false;
             } else if elem.to_uppercase() == "IF" {
                 niveles_if += 1;
@@ -104,9 +109,9 @@ impl Parser {
         let mut contador_if: usize = 0;
         let mut hubo_else = false;
 
-        for (contador_local, i) in (*contador+1..leido.len()).enumerate(){
+        for (contador_local, i) in (*contador + 1..leido.len()).enumerate() {
             let elem = &leido[i];
-            if elem.to_uppercase() == "THEN"{
+            if elem.to_uppercase() == "THEN" {
                 *niveles_if -= 1;
                 if *niveles_if == 0 && !hubo_else {
                     let vector = self.parseo(&leido[*contador + 1..i])?;
@@ -114,7 +119,6 @@ impl Parser {
                     return Ok(TokenParseo::DentroIF(vector));
                 }
                 if *niveles_if == 0 && hubo_else {
-
                     let mut vector_if = self.parseo(&leido[*contador + 1..contador_if])?;
                     let vector_else = self.parseo(&leido[contador_if + 1..i])?;
                     let token_else = TokenParseo::DentroELSE(vector_else);
@@ -123,11 +127,11 @@ impl Parser {
                     return Ok(TokenParseo::DentroIF(vector_if));
                 }
             }
-            if elem.to_uppercase() == "IF"{
+            if elem.to_uppercase() == "IF" {
                 *niveles_if += 1;
             }
-            if elem.to_uppercase() == "ELSE"{
-                if *niveles_if == 1{
+            if elem.to_uppercase() == "ELSE" {
+                if *niveles_if == 1 {
                     contador_if = i;
                 }
                 //contador_if = i;
@@ -138,12 +142,12 @@ impl Parser {
     }
 
     /// Se encarga de parsear los casos especiales ." " y el texto que incluye
-    /// 
+    ///
     /// Devuelve un TokenParseo::Texto() con todo lo que estaba entre ." "
-    fn encontrar_texto(&self, leido: &[String], contador: &mut usize) -> TokenParseo {
+    /* fn encontrar_texto(&self, leido: &[String], contador: &mut usize) -> TokenParseo {
         let mut texto_acumulado = String::new();
         let mut contador_local: usize = 0;
-        for elem in leido.iter().skip(*contador){
+        for elem in leido.iter().skip(*contador) {
             if elem.contains("\"") {
                 let partes: Vec<&str> = elem.split('\"').collect();
                 texto_acumulado.push_str(partes[0]);
@@ -156,7 +160,7 @@ impl Parser {
         }
         *contador += contador_local;
         TokenParseo::Texto(texto_acumulado)
-    }
+    } */
 
     /// Se encarga de asignarle un TokenParseo a los operadores por defecto
     fn matchear_string(
