@@ -26,16 +26,18 @@ pub struct Forth {
     pub restante: Vec<TokenParseo>,
 }
 
-impl Forth {
+impl Default for Forth {
     /// Crea un Forth con todas las listas vacias
-    pub fn new() -> Self {
+    fn default() -> Self {
         Self {
             words_usuarios: Vec::new(),
             restante: Vec::new(),
             bodys: Vec::new(),
         }
     }
+}
 
+impl Forth{
     /// Encuentra el indice del body de la word a partir del nombre de la misma
     pub fn encontrar_word(&self, nombre: &String) -> Result<usize, String> {
         for i in 0..self.words_usuarios.len() {
@@ -63,7 +65,11 @@ impl Forth {
     }
 
     /// Ejecuta los tokens de restante
-    pub fn ejecutar_tokens<W: Write>(&self, stack: &mut Stack, writer: &mut W) -> Result<Devolucion, String> {
+    pub fn ejecutar_tokens<W: Write>(
+        &self,
+        stack: &mut Stack,
+        writer: &mut W,
+    ) -> Result<Devolucion, String> {
         for token in &self.restante {
             self.ejecutar(token, stack, writer)?;
         }
@@ -106,7 +112,7 @@ impl Forth {
         &self,
         string_ejecutable: &String,
         stack: &mut Stack,
-        writer: &mut W
+        writer: &mut W,
     ) -> Result<bool, String> {
         let indice_word = self.encontrar_word(string_ejecutable);
         match indice_word {
@@ -137,7 +143,12 @@ impl Forth {
     ///
     /// Para ejecutar ```Indice(0)``` es donde se utiliza esta funcion ya que toma el body con ese indice
     /// y lo ejecuta (en este caso ```Token(Numero(5))```)
-    fn ejecutar_por_indice<W: Write>(&self, indice: &usize, stack: &mut Stack, writer: &mut W) -> Result<Devolucion, String> {
+    fn ejecutar_por_indice<W: Write>(
+        &self,
+        indice: &usize,
+        stack: &mut Stack,
+        writer: &mut W,
+    ) -> Result<Devolucion, String> {
         if let Some(tokens_ejecutar) = self.bodys.get(*indice) {
             for token in tokens_ejecutar {
                 match token {
@@ -154,7 +165,12 @@ impl Forth {
     }
 
     /// Ejecuta if
-    fn ejecutar_if<W: Write>(&self, token: &TokenParseo, stack: &mut Stack, writer: &mut W) -> Result<Devolucion, String> {
+    fn ejecutar_if<W: Write>(
+        &self,
+        token: &TokenParseo,
+        stack: &mut Stack,
+        writer: &mut W,
+    ) -> Result<Devolucion, String> {
         let cond = stack.pop()?;
         let cond = matchear_devolucion_numero(cond)?;
 

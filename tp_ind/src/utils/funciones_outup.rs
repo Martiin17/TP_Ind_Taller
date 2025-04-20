@@ -4,10 +4,7 @@ use std::io::Write;
 
 /// Quita el ultimo elemento del stack y lo imprime
 ///
-pub fn ejecutar_punto<W: Write>(
-    writer: &mut W,
-    stack: &mut Stack,
-) -> Result<Devolucion, String> {
+pub fn ejecutar_punto<W: Write>(writer: &mut W, stack: &mut Stack) -> Result<Devolucion, String> {
     let numero = stack.pop()?;
     let numero = matchear_devolucion_numero(numero)?;
     write!(writer, "{} ", numero).map_err(|e| e.to_string())?;

@@ -17,8 +17,8 @@ fn main() {
     match interpretar_parametros() {
         Ok((capacidad_stack, archivo_leer)) => {
             let mut stack_test = Stack::new(capacidad_stack);
-            let mut parser_test = Parser::new();
-            let mut forth_test = Forth::new();
+            let mut parser_test = Parser::default();
+            let mut forth_test = Forth::default();
 
             match parser_test.leer_archivo(&archivo_leer) {
                 Ok(vector_string) => {

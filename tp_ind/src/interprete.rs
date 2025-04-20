@@ -43,7 +43,7 @@ pub fn formar_bodys(forth: &mut Forth, tokens: Vec<TokenParseo>) -> Result<Devol
                     let indice = forth.encontrar_word_para_armar_body(&nombre)?;
                     body_actual.push(ParametroBody::Indice(indice));
                 }
-                TokenParseo::IF | TokenParseo::THEN | TokenParseo::ELSE => {}
+                TokenParseo::If | TokenParseo::Then | TokenParseo::Else => {}
                 _ => body_actual.push(ParametroBody::Token(token)),
             }
         } else {
@@ -76,9 +76,9 @@ fn caso_if(dentro_token: Vec<TokenParseo>) -> Vec<TokenParseo> {
             TokenParseo::SimboloInicioWord(_) => continue,
             TokenParseo::SimboloFinWord(_) => continue,
             TokenParseo::Simbolo(_) => continue,
-            TokenParseo::IF => continue,
-            TokenParseo::ELSE => continue,
-            TokenParseo::THEN => continue,
+            TokenParseo::If => continue,
+            TokenParseo::Else => continue,
+            TokenParseo::Then => continue,
             TokenParseo::DentroIF(token_parseos) => {
                 let sub_nivel = caso_if(token_parseos);
                 let nuevo_token = TokenParseo::DentroIF(sub_nivel);

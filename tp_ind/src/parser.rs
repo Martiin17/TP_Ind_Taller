@@ -12,13 +12,15 @@ pub struct Parser {
     pub tokens: Vec<TokenParseo>,
 }
 
-impl Parser {
+impl Default for Parser {
     /// Crea un nuevo Parser
-    pub fn new() -> Self {
+    fn default() -> Self {
         Self { tokens: Vec::new() }
     }
+}
 
-    ///Lee el archivo y devuelve un io::Result<Vec<String>> con lo leido
+impl Parser{
+    ///Lee el archivo y devuelve un `io::Result<Vec<String>>` con lo leido
     pub fn leer_archivo(&self, nombre_archivo: &str) -> io::Result<Vec<String>> {
         let path = Path::new(nombre_archivo);
         let file = File::open(path)?;
@@ -141,27 +143,6 @@ impl Parser {
         Err("No se encontro THEN".to_string())
     }
 
-    /// Se encarga de parsear los casos especiales ." " y el texto que incluye
-    ///
-    /// Devuelve un TokenParseo::Texto() con todo lo que estaba entre ." "
-    /* fn encontrar_texto(&self, leido: &[String], contador: &mut usize) -> TokenParseo {
-        let mut texto_acumulado = String::new();
-        let mut contador_local: usize = 0;
-        for elem in leido.iter().skip(*contador) {
-            if elem.contains("\"") {
-                let partes: Vec<&str> = elem.split('\"').collect();
-                texto_acumulado.push_str(partes[0]);
-                break;
-            } else {
-                texto_acumulado.push_str(elem);
-                texto_acumulado.push_str(" ");
-            }
-            contador_local += 1;
-        }
-        *contador += contador_local;
-        TokenParseo::Texto(texto_acumulado)
-    } */
-
     /// Se encarga de asignarle un TokenParseo a los operadores por defecto
     fn matchear_string(
         &self,
@@ -173,9 +154,9 @@ impl Parser {
         match elem.as_str() {
             "+" | "-" | "/" | "*" | "AND" | "OR" | "<" | ">" | "NOT" | "=" | "." | "CR"
             | "EMIT" | "DUP" | "DROP" | "SWAP" | "OVER" => TokenParseo::Ejecutable(elem),
-            "IF" => TokenParseo::IF,
-            "THEN" => TokenParseo::THEN,
-            "ELSE" => TokenParseo::ELSE,
+            "IF" => TokenParseo::If,
+            "THEN" => TokenParseo::Then,
+            "ELSE" => TokenParseo::Else,
             ":" => {
                 *proximo_word_name = true;
                 *dentro_de_word = true;
