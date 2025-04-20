@@ -20,7 +20,7 @@ impl Default for Parser {
 }
 
 impl Parser{
-    ///Lee el archivo y devuelve un `io::Result<Vec<String>>` con lo leido
+    /// Lee el archivo y devuelve un `io::Result<Vec<String>>` con lo leido
     pub fn leer_archivo(&self, nombre_archivo: &str) -> io::Result<Vec<String>> {
         let path = Path::new(nombre_archivo);
         let file = File::open(path)?;
@@ -64,7 +64,7 @@ impl Parser{
         }
     }
 
-    ///Se encarga de asignarle un TokenParseo a un slice de Strings
+    /// Se encarga de asignarle un TokenParseo a un slice de Strings
     pub fn parseo(&self, leido: &[String]) -> Result<Vec<TokenParseo>, String> {
         let mut proximo_word_name = false;
         let mut es_texto = false;

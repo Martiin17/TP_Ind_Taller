@@ -3,7 +3,6 @@ use crate::{devolucion::Devolucion, stack::Stack, utils::matchear_devolucion_num
 use std::io::Write;
 
 /// Quita el ultimo elemento del stack y lo imprime
-///
 pub fn ejecutar_punto<W: Write>(writer: &mut W, stack: &mut Stack) -> Result<Devolucion, String> {
     let numero = stack.pop()?;
     let numero = matchear_devolucion_numero(numero)?;
@@ -12,7 +11,6 @@ pub fn ejecutar_punto<W: Write>(writer: &mut W, stack: &mut Stack) -> Result<Dev
 }
 
 /// Imprime un salto de linea
-///
 pub fn ejecutar_cr<W: Write>(writer: &mut W, _stack: &mut Stack) -> Result<Devolucion, String> {
     writeln!(writer).map_err(|e| e.to_string())?;
     Ok(Devolucion::Vacio)
@@ -32,10 +30,9 @@ pub fn ejecutar_emit<W: Write>(writer: &mut W, stack: &mut Stack) -> Result<Devo
 ///
 /// #Example
 ///
-/// " Hola mundo!"
+/// ." Hola mundo!"
 ///
-/// Se imprime --> Hola mundo!
-///
+/// Se imprime: Hola mundo!
 pub fn ejecutar_punto_y_coma<W: Write>(
     writer: &mut W,
     _stack: &mut Stack,

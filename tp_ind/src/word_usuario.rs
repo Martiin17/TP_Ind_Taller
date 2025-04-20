@@ -22,9 +22,4 @@ impl WordUsuario {
     pub fn get_nombre(&self) -> &String {
         &self.nombre
     }
-
-    /* /// Se obtien el indice de una WordUsuario
-    pub fn get_indice(&self) -> &usize {
-        &self.indice
-    } */
 }
