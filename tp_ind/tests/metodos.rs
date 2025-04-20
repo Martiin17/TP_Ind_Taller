@@ -6,11 +6,10 @@ mod common;
 
 #[cfg(test)]
 mod metodo {
-    use crate::common;
+    use crate::common::{self, comparar_resultado_stack,};
 
     use common::{
-        crear_word_usuario, escribir_en_archivo, formar_tokens, leer_archivo_y_almacenar_parser,
-        leer_stack, set_up,
+        crear_word_usuario, escribir_en_archivo, formar_tokens, leer_archivo_y_almacenar_parser
     };
 
     use tp_ind::{token_parseo::TokenParseo, word_usuario::WordUsuario};
@@ -68,9 +67,6 @@ mod metodo {
     #[test]
     fn ejemplo_sencillo() -> Result<(), String> {
         escribir_en_archivo(": CINCO 5 ; \n CINCO")?;
-        set_up()?;
-        let leido_del_stack = leer_stack()?;
-        assert_eq!(leido_del_stack, vec![5]);
-        Ok(())
+        comparar_resultado_stack(vec![5])
     }
 }

@@ -1,6 +1,6 @@
 use tp_ind::{
     forth::Forth,
-    interprete::{escribir_stack, formar_bodys},
+    interprete::formar_bodys,
     parametro_body::ParametroBody,
     parser::Parser,
     stack::Stack,
@@ -11,32 +11,12 @@ use tp_ind::{
 use std::fs::File;
 use std::io::{Read, Write};
 
-const CAPACIDAD_STACK: usize = 512; // 1024/2
+pub const CAPACIDAD_STACK: usize = 512; // 1024/2
 const RUTA_ARCHIVO: &str = "probando.fth";
 
-pub fn set_up() -> Result<(), String> {
-    let mut stack_test = Stack::new(CAPACIDAD_STACK);
-    let mut parser_test = Parser::new();
-    let mut forth_test = Forth::new();
 
-    let leido = parser_test
-        .leer_archivo(RUTA_ARCHIVO)
-        .map_err(|e| format!("Error {} al leer {}", e, RUTA_ARCHIVO))?;
-
-    let tokens = parser_test.parseo(&leido)?;
-    parser_test.tokens = tokens;
-
-    let _ = formar_bodys(&mut forth_test, parser_test.tokens)?;
-
-    let _ = forth_test.ejecutar_tokens(&mut stack_test, &mut std::io::stdout())?;
-
-    let _ = escribir_stack(&stack_test).map_err(|e| format!("Error {} al escribir en stack.fth", e))?;
-
-    Ok(())
-}
-
-pub fn set_up_devuelve_stack<W: Write>(salida: &mut W) -> Result<Stack, String> {
-    let mut stack_test = Stack::new(CAPACIDAD_STACK);
+pub fn set_up<W: Write>(salida: &mut W, capacidad_stack: usize) -> Result<Stack, String> {
+    let mut stack_test = Stack::new(capacidad_stack);
     let mut parser_test = Parser::new();
     let mut forth_test = Forth::new();
 
@@ -85,7 +65,6 @@ pub fn escribir_en_archivo(texto: &str) -> Result<(), String> {
         .map_err(|e| format!("Error al escribir en archivo: {}", e))?;
 
     Ok(())
-
 }
 
 pub fn leer_stack() -> Result<Vec<i16>, String> {
@@ -107,22 +86,28 @@ pub fn leer_stack() -> Result<Vec<i16>, String> {
 }
 
 pub fn comparar_resultado_stack(resultado_esperado: Vec<i16>) -> Result<(), String> {
-    let stack_resultante = set_up_devuelve_stack(&mut std::io::stdout())?;
+    let stack_resultante = set_up(&mut std::io::stdout(), CAPACIDAD_STACK)?;
     assert_eq!(stack_resultante.vector, resultado_esperado);
     Ok(())
 }
 
 pub fn comparar_resultado_print(resultado_esperado: &str) -> Result<(), String> {
     let mut buffer = std::io::Cursor::new(Vec::new());
-    let _ = set_up_devuelve_stack(&mut buffer)?;
+    let _ = set_up(&mut buffer, CAPACIDAD_STACK)?;
     let obtenido = String::from_utf8(buffer.into_inner()).unwrap();
     assert_eq!(obtenido, resultado_esperado);
     Ok(())
 }
 
-pub fn comparar_resultado_err(resultado_esperado: &str) -> Result<(), String> {
-    let resultado = set_up_devuelve_stack(&mut std::io::stdout());
+pub fn comparar_resultado_err(resultado_esperado: &str, capacidad_stack: usize) -> Result<(), String> {
+    let resultado = set_up(&mut std::io::stdout(), capacidad_stack);
     assert!(resultado.is_err());
     assert_eq!(resultado.unwrap_err(), resultado_esperado);
     Ok(())
+}
+
+pub fn limpiar_archivo(ruta: &str) -> Result<(), String> {
+    File::create(ruta)
+        .map(|_| ()) 
+        .map_err(|e| format!("Error al limpiar el archivo: {}", e))
 }
