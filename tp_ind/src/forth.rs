@@ -37,7 +37,7 @@ impl Default for Forth {
     }
 }
 
-impl Forth{
+impl Forth {
     /// Encuentra el indice del body de la word a partir del nombre de la misma
     pub fn encontrar_word(&self, nombre: &String) -> Result<usize, String> {
         for i in 0..self.words_usuarios.len() {

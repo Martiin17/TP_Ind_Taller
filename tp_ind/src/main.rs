@@ -44,7 +44,7 @@ fn main() {
                         Err(e) => println!("{}", e),
                     }
                 }
-                Err(e) => println!("{}", e),
+                Err(_) => println!("No se encontro el archivo '{}'", archivo_leer),
             }
         }
         Err(e) => println!("{}", e),

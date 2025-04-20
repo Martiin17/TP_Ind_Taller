@@ -22,50 +22,82 @@ pub fn formar_bodys(forth: &mut Forth, tokens: Vec<TokenParseo>) -> Result<Devol
     let mut en_armado_word = false;
     let mut body_actual: Vec<ParametroBody> = vec![];
     let mut contador_words: usize = 0;
+
     for token in tokens {
         if en_armado_word {
-            match token {
-                TokenParseo::SimboloInicioWord(_) => {
-                    return Err(String::from("parser-error (simbolo inicio)"));
-                }
-                TokenParseo::SimboloFinWord(_) => {
-                    en_armado_word = false;
-                    forth.bodys.push(body_actual);
-                    body_actual = vec![];
-                }
-                TokenParseo::Simbolo(_) => {}
-                TokenParseo::DentroIF(vector) => {
-                    let vector_parseado = caso_if(vector);
-                    let nuevo_token = TokenParseo::DentroIF(vector_parseado);
-                    body_actual.push(ParametroBody::Token(nuevo_token));
-                }
-                TokenParseo::WordName(nombre) => {
-                    let indice = forth.encontrar_word_para_armar_body(&nombre)?;
-                    body_actual.push(ParametroBody::Indice(indice));
-                }
-                TokenParseo::If | TokenParseo::Then | TokenParseo::Else => {}
-                _ => body_actual.push(ParametroBody::Token(token)),
+            procesar_token_dentro_word(forth, token, &mut en_armado_word, &mut body_actual)?;
+
+            if !en_armado_word {
+                forth.bodys.push(body_actual);
+                body_actual = vec![];
             }
         } else {
-            match token {
-                TokenParseo::WordName(nombre) => {
-                    verificar_nombre_no_numero(&nombre)?;
-                    forth
-                        .words_usuarios
-                        .push(WordUsuario::new(nombre, contador_words));
-                    contador_words += 1;
-                    en_armado_word = true;
-                }
-                TokenParseo::SimboloInicioWord(_) => {}
-                TokenParseo::SimboloFinWord(_) => {
-                    return Err(String::from("parser-error (simbolo fin)"));
-                }
-                TokenParseo::Simbolo(_) => {}
-                _ => forth.restante.push(token),
-            }
+            procesar_token_fuera_word(forth, token, &mut contador_words, &mut en_armado_word)?;
         }
     }
+
     Ok(Devolucion::Vacio)
+}
+
+fn procesar_token_dentro_word(
+    forth: &mut Forth,
+    token: TokenParseo,
+    en_armado_word: &mut bool,
+    body_actual: &mut Vec<ParametroBody>,
+) -> Result<(), String> {
+    match token {
+        TokenParseo::SimboloInicioWord(_) => {
+            return Err(String::from("parser-error (simbolo inicio)"));
+        }
+        TokenParseo::SimboloFinWord(_) => {
+            *en_armado_word = false;
+            return Ok(());
+        }
+        TokenParseo::Simbolo(_) => {}
+        TokenParseo::DentroIF(vector) => {
+            procesar_dentro_if(vector, body_actual);
+        }
+        TokenParseo::WordName(nombre) => {
+            let indice = forth.encontrar_word_para_armar_body(&nombre)?;
+            body_actual.push(ParametroBody::Indice(indice));
+        }
+        TokenParseo::If | TokenParseo::Then | TokenParseo::Else => {}
+        _ => body_actual.push(ParametroBody::Token(token)),
+    }
+
+    Ok(())
+}
+
+fn procesar_dentro_if(vector: Vec<TokenParseo>, body_actual: &mut Vec<ParametroBody>) {
+    let vector_parseado = caso_if(vector);
+    let nuevo_token = TokenParseo::DentroIF(vector_parseado);
+    body_actual.push(ParametroBody::Token(nuevo_token));
+}
+
+fn procesar_token_fuera_word(
+    forth: &mut Forth,
+    token: TokenParseo,
+    contador_words: &mut usize,
+    en_armado_word: &mut bool,
+) -> Result<(), String> {
+    match token {
+        TokenParseo::WordName(nombre) => {
+            verificar_nombre_no_numero(&nombre)?;
+            forth
+                .words_usuarios
+                .push(WordUsuario::new(nombre, *contador_words));
+            *contador_words += 1;
+            *en_armado_word = true;
+        }
+        TokenParseo::SimboloInicioWord(_) => {}
+        TokenParseo::SimboloFinWord(_) => {
+            return Err(String::from("parser-error (simbolo fin)"));
+        }
+        TokenParseo::Simbolo(_) => {}
+        _ => forth.restante.push(token),
+    }
+
+    Ok(())
 }
 
 /// Se encarga de ejecutar los casos de TokenParseo::DentroIF

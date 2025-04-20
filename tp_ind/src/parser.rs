@@ -19,7 +19,7 @@ impl Default for Parser {
     }
 }
 
-impl Parser{
+impl Parser {
     /// Lee el archivo y devuelve un `io::Result<Vec<String>>` con lo leido
     pub fn leer_archivo(&self, nombre_archivo: &str) -> io::Result<Vec<String>> {
         let path = Path::new(nombre_archivo);
