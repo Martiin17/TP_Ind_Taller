@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["ejecutar_and","ejecutar_igual","ejecutar_mayor","ejecutar_menor","ejecutar_not","ejecutar_or"]};

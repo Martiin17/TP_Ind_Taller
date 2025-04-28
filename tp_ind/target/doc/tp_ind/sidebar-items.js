@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["devolucion","forth","funcion","interprete","parametro_body","parser","stack","token_parseo","utils","word_primitiva","word_usuario"]};
