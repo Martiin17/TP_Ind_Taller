@@ -16,30 +16,30 @@ mod word_usuario;
 fn main() {
     match interpretar_parametros() {
         Ok((capacidad_stack, archivo_leer)) => {
-            let mut stack_test = Stack::new(capacidad_stack);
-            let mut parser_test = Parser::default();
-            let mut forth_test = Forth::default();
+            let mut stack = Stack::new(capacidad_stack);
+            let mut parser = Parser::default();
+            let mut forth = Forth::default();
 
-            match parser_test.leer_archivo(&archivo_leer) {
+            match parser.leer_archivo(&archivo_leer) {
                 Ok(vector_string) => {
-                    match parser_test.parseo(&vector_string) {
+                    match parser.parseo(&vector_string) {
                         Ok(rta) => {
-                            parser_test.tokens = rta;
+                            parser.tokens = rta;
                         }
                         Err(e) => println!("{}", e),
                     }
 
-                    match formar_bodys(&mut forth_test, parser_test.tokens) {
+                    match formar_bodys(&mut forth, parser.tokens) {
                         Ok(_) => (),
                         Err(e) => println!("{}", e),
                     }
 
-                    match forth_test.ejecutar_tokens(&mut stack_test, &mut std::io::stdout()) {
+                    match forth.ejecutar_tokens(&mut stack, &mut std::io::stdout()) {
                         Ok(_) => (),
                         Err(e) => println!("{}", e),
                     }
 
-                    match escribir_stack(&stack_test) {
+                    match escribir_stack(&stack) {
                         Ok(_) => (),
                         Err(e) => println!("{}", e),
                     }

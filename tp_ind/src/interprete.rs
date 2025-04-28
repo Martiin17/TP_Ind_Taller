@@ -137,7 +137,7 @@ pub fn interpretar_parametros() -> Result<(usize, String), String> {
     }
 
     let ruta_fth = &args[1];
-    let mut stack_size: usize = 128 / 2;
+    let mut stack_size: usize = 65536; // 131072bytes/2bytes
 
     if args.len() >= 3 {
         let arg2 = &args[2];
@@ -169,7 +169,6 @@ pub fn escribir_stack(stack: &Stack) -> io::Result<()> {
     let contenido = stack
         .vector
         .iter()
-        .rev()
         .map(|n| n.to_string())
         .collect::<Vec<_>>()
         .join(" ");
